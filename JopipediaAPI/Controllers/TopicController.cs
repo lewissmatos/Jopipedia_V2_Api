@@ -2,68 +2,56 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JopipediaAPI.Data.DTO.Rank;
+using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JopipediaAPI.Controllers
 {
-    
-    
     [Route("api/[controller]")]
     [ApiController]
-    public class UserRankController : ControllerBase
+    public class TopicController : ControllerBase
     {
+        private readonly ITopicService _topicService;
         
-        private readonly IUserRankService _userRankService;
-        
-        public UserRankController(IUserRankService userRankService)
+        public TopicController(ITopicService topicService)
         {
-            _userRankService = userRankService;
+            _topicService = topicService;
         }
-
+        
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        async public Task<IActionResult> GetAll()
         {
-            var response = await _userRankService.GetAll();
-          
+            var response = await _topicService.GetAll();
             return await ValidateResult(response);
-
         }
         
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        async public Task<IActionResult> GetById(Guid id)
         {
-            var response = await _userRankService.GetById(id);
-          
+            var response = await _topicService.GetById(id);
             return await ValidateResult(response);
-
         }
         
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] UserRankDTO body)
+        async public Task<IActionResult> Create([FromBody] TopicDTO topic)
         {
-            var response = await _userRankService.Create(body);
-          
+            var response = await _topicService.Create(topic);
             return await ValidateResult(response);
-
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UserRankDTO body)
+        async public Task<IActionResult> Update(Guid id, [FromBody] TopicDTO topic)
         {
-            var response = await _userRankService.Update(id, body);
-          
+            var response = await _topicService.Update(id, topic);
             return await ValidateResult(response);
-
         }
         
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        async public Task<IActionResult> Delete(Guid id)
         {
-            var response = await _userRankService.Delete(id);
-          
+            var response = await _topicService.Delete(id);
             return await ValidateResult(response);
         }
         
@@ -78,6 +66,5 @@ namespace JopipediaAPI.Controllers
 
             return Ok(new { response.Data, response.Message });
         }
-        
     }
 }

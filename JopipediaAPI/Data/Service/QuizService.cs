@@ -50,21 +50,22 @@ internal class QuizService: IQuizService
         return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(quiz));
     }
 
-   async public Task<ServiceResponse<QuizDTO>> Create(QuizDTO quizDTO)
+   async public Task<ServiceResponse<QuizDTO>> Create(QuizDTO quiz)
     {
-        var quiz = _mapper.Map<Quiz>(quizDTO);
+        var newQuiz = _mapper.Map<Quiz>(quiz);
         
-        var topic = await _context.Topics.FirstOrDefaultAsync(t => t.Id == quizDTO.TopicId);
+        var topic = await _context.Topics.FirstOrDefaultAsync(t => t.Id == quiz.TopicId);
         
         if (topic == null)
         {
             return ServiceResponse<QuizDTO>.NotFound("notFound","Topic not found");
         }
         
-        quiz.Topic = topic;
-        await _context.Quizzes.AddAsync(quiz);
+        newQuiz.Topic = topic;
+        _mapper.Map(quiz, newQuiz);
+        await _context.Quizzes.AddAsync(newQuiz);
         await _context.SaveChangesAsync();
-        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(quiz));
+        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(newQuiz));
         
     }
 

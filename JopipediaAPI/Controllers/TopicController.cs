@@ -64,7 +64,15 @@ namespace JopipediaAPI.Controllers
             if(response.IsBadRequest)
                 return BadRequest(new {response.Data, response.Message});
 
-            return Ok(new { response.Data, response.Message });
+            // Implement the pagination here and also to the other controllers
+            var meta = new 
+            {
+                currentPage = 0,
+                totalPages = 0,
+                pageSize = 0,
+                totalCount = 0
+            };
+            return Ok(new { response.Data, response.Message, meta });
         }
     }
 }

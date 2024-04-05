@@ -10,7 +10,7 @@ public class Quiz: BaseModel
     public string? Description { get; set; }
     public string? Color { get; set; }
     public string? Emoji { get; set; }
-    public bool IsPrivate { get; set; } 
+    public bool IsPrivate { get; set; } = false;
     public string? Passcode { get; set; }
     public Guid TopicId { get; set; }
     public Topic Topic { get; set; }

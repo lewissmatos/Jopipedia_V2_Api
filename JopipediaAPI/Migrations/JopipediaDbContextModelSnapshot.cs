@@ -98,33 +98,37 @@ namespace JopipediaAPI.Migrations
 
             modelBuilder.Entity("JopipediaAPI.Data.Model.Question", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("QuizId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Tescription")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("Value")
+                    b.Property<double?>("Value")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("QuizId");
 
                     b.ToTable("Questions");
                 });
@@ -154,9 +158,6 @@ namespace JopipediaAPI.Migrations
                     b.Property<string>("Passcode")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("QuestionId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
@@ -164,15 +165,13 @@ namespace JopipediaAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TopicId")
+                    b.Property<Guid>("TopicId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
 
                     b.HasIndex("TopicId");
 
@@ -396,15 +395,24 @@ namespace JopipediaAPI.Migrations
                     b.Navigation("Question");
                 });
 
+            modelBuilder.Entity("JopipediaAPI.Data.Model.Question", b =>
+                {
+                    b.HasOne("JopipediaAPI.Data.Model.Quiz", "Quiz")
+                        .WithMany()
+                        .HasForeignKey("QuizId");
+
+                    b.Navigation("Quiz");
+                });
+
             modelBuilder.Entity("JopipediaAPI.Data.Model.Quiz", b =>
                 {
-                    b.HasOne("JopipediaAPI.Data.Model.Question", null)
+                    b.HasOne("JopipediaAPI.Data.Model.Topic", "Topic")
                         .WithMany("Quizzes")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("JopipediaAPI.Data.Model.Topic", null)
-                        .WithMany("Quizzes")
-                        .HasForeignKey("TopicId");
+                    b.Navigation("Topic");
                 });
 
             modelBuilder.Entity("JopipediaAPI.Data.Model.User", b =>
@@ -439,11 +447,6 @@ namespace JopipediaAPI.Migrations
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("JopipediaAPI.Data.Model.Question", b =>
-                {
-                    b.Navigation("Quizzes");
                 });
 
             modelBuilder.Entity("JopipediaAPI.Data.Model.Topic", b =>

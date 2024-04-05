@@ -47,6 +47,7 @@ builder.Services.AddSingleton(mapper);
     builder.Services.AddScoped<IUserRoleService, UserRoleService>();
     builder.Services.AddScoped<IUserRankService, UserRankService>();
     builder.Services.AddScoped<ITopicService, TopicService>();
+    builder.Services.AddScoped<IQuizService, QuizService>();
 #endregion
 
 // Add Authentication and Authorization with JWT to Services

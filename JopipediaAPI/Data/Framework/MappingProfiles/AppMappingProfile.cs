@@ -1,6 +1,7 @@
 using AutoMapper;
 using JopipediaAPI.Data.DTO;
 using JopipediaAPI.Data.DTO.Award;
+using JopipediaAPI.Data.DTO.Quiz;
 using JopipediaAPI.Data.DTO.Rank;
 using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.DTO.User;
@@ -23,6 +24,7 @@ public class AppMappingProfile: Profile
             CreateMap<UserLevel, UserLevelDTO>().ReverseMap();
             CreateMap<Award, AwardDTO>().ReverseMap();
             CreateMap<Topic, TopicDTO>().ReverseMap();
+            CreateMap<Quiz, QuizDTO>().ReverseMap();
         #endregion
     }
 }

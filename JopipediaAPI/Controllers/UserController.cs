@@ -96,8 +96,6 @@ namespace JopipediaAPI.Controllers
             return Ok(new { response.Data, response.Message });
         }
         
-        
-       
     }
 }
 

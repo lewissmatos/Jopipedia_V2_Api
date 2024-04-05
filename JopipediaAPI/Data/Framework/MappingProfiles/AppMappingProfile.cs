@@ -29,6 +29,7 @@ public class AppMappingProfile: Profile
             CreateMap<Quiz, QuizDTO>().ReverseMap();
             CreateMap<Question, QuestionDTO>().ReverseMap();
             CreateMap<Answer, AnswerDTO>().ReverseMap();
+            CreateMap<Score, ScoreDTO>().ReverseMap();
         #endregion
     }
 }

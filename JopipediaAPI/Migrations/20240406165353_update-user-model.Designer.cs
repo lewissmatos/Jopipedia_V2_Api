@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using JopipediaAPI.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JopipediaAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class JopipediaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240406165353_update-user-model")]
+    partial class updateusermodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,21 +53,21 @@ namespace JopipediaAPI.Migrations
                     b.Property<string>("Explanation")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("boolean");
-
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("isCorrect")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("title")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

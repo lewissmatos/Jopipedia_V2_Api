@@ -1,10 +1,12 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
+using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.DTO.Question;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace JopipediaAPI.Data.Service;
 
@@ -22,11 +24,37 @@ public class QuestionService: IQuestionService
         _configuration = configuration;
     }
     
-    async public Task<ServiceResponse<List<QuestionDTO>>> GetAll()
+    async public Task<ServiceResponse<List<QuestionDTO>>> GetAll(QuestionFitlersDTO? filters)
     {
-        var questions = await _context.Questions.ToListAsync();
-            
-        return ServiceResponse<List<QuestionDTO>>.Success(_mapper.Map<List<QuestionDTO>>(questions));
+        var queryableResponse = _context.Questions
+            .Where(q => q.Status == true)
+            .AsQueryable();
+
+
+        if (!filters.Title.IsNullOrEmpty())
+        {
+            queryableResponse.Include(q => q.Title.Contains(filters.Title));
+        }
+        if (!filters.Description.IsNullOrEmpty())
+        {
+            queryableResponse.Include(q => q.Description.Contains(filters.Description));
+        }
+        if (filters.QuizId != Guid.Empty && filters.QuizId != null)
+        {
+            queryableResponse.Include(q => q.QuizId == filters.QuizId);
+        }
+        if (!filters.Type.IsNullOrEmpty())
+        {
+            queryableResponse.Include(q => q.Type == filters.Type);
+        }
+       
+        var paginatedQuestions = await PaginatedResponse<Question>
+            .CreateAsync(queryableResponse, filters.Page, filters.Take);
+        
+        var data = _mapper.Map<List<QuestionDTO>>(paginatedQuestions.Data);
+        
+        return ServiceResponse<List<QuestionDTO>>
+            .Success(data, paginatedQuestions.Meta);
     }
 
     async public Task<ServiceResponse<QuestionDTO>> GetById(Guid id)

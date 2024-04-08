@@ -1,7 +1,10 @@
 using JopipediaAPI.Data.DTO.User;
+using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using tsprojectsAPI.Data.Framework.Helpers;
+
 namespace JopipediaAPI.Controllers
 {
     
@@ -19,53 +22,43 @@ namespace JopipediaAPI.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAll([FromQuery] UserFiltersDTO? filters)
         {
-            var response = await _userService.GetAllUsers();
-            
-            // return await ValidateResult(response);
-
-            if(response.IsNotFound)
-                return NotFound(new {response.Data, response.Message});
+            var response = await _userService.GetAll(filters);
           
-            if(response.IsBadRequest)
-                return BadRequest(new {response.Data, response.Message});
-          
-            return Ok(new { response.Data, response.Message });
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var response = await _userService.GetUserById(id);
+            var response = await _userService.GetById(id);
           
-            return await ValidateResult(response);
-
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserPayloadDTO body)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserPayloadDTO body)
         {
-            var response = await _userService.UpdateUser(id, body);
+            var response = await _userService.Update(id, body);
           
-            return await ValidateResult(response);
-
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}/disable")]
-        public async Task<IActionResult> DisableUser(Guid id)
+        public async Task<IActionResult> Disable(Guid id)
         {
-            var response = await _userService.DisableUser(id);
+            var response = await _userService.Disable(id);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var response = await _userService.DeleteUser(id);
+            var response = await _userService.Delete(id);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}/level")]
@@ -73,7 +66,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userService.UpdateUserLevel(id, value);
   
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}/rank")]
@@ -81,21 +74,8 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userService.UpdateUserRank(id, value);
   
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
-        
-        // Helper method to validate the response
-        private async Task<IActionResult> ValidateResult(dynamic response)
-        {
-            if(response.IsNotFound)
-                return NotFound(new {response.Data, response.Message});
-
-            if(response.IsBadRequest)
-                return BadRequest(new {response.Data, response.Message});
-
-            return Ok(new { response.Data, response.Message });
-        }
-        
     }
 }
 

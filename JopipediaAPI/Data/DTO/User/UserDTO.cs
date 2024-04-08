@@ -11,10 +11,15 @@ public class UserDTO
     public string? Name { get; set; }   
     public string Username { get; set; }
     public string Email { get; set; }
-    public UserLevelDTO? Level { get; set; }
-    public List<UserDTO>? Followers { get; set; }
-    public List<UserRoleDTO>? Roles { get; set; }
-    public UserRankDTO? Rank { get; set; }
     public double RankingValue { get; set; } = 1;
+    public UserLevelDTO? Level { get; set; }
+    public Guid? LevelId { get; set; }
+    public List<UserDTO>? Followers { get; set; }
+    public List<Guid>? FollowerIds { get; set; }
+    public List<UserRoleDTO>? Roles { get; set; }
+    public List<Guid>? RoleIds { get; set; }
+    public UserRankDTO? Rank { get; set; }
+    public Guid? RankId { get; set; }
     public List<AwardDTO>? Awards { get; set; }
+    public List<Guid>? AwardIds { get; set; }
 }

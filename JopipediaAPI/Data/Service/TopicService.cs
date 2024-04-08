@@ -1,5 +1,6 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
+using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
@@ -23,11 +24,17 @@ internal class TopicService: ITopicService
         _configuration = configuration;
     }
     
-    async public  Task<ServiceResponse<List<TopicDTO>>> GetAll()
+    async public  Task<ServiceResponse<List<TopicDTO>>> GetAll(PaginationParamsDTO pagination)
     {
-        var topics = await _context.Topics.ToListAsync();
+
+        var queryableResponse = _context.Topics.AsQueryable();
+
+        var paginatedTopics = await PaginatedResponse<Topic>
+            .CreateAsync(queryableResponse, pagination.Page,pagination.Take);
         
-        return ServiceResponse<List<TopicDTO>>.Success(topics.Select(u => _mapper.Map<TopicDTO>(u)).ToList());
+        var data = _mapper.Map<List<TopicDTO>>(paginatedTopics.Data);
+        
+        return ServiceResponse<List<TopicDTO>>.Success(data, paginatedTopics.Meta);
     }
 
     async public Task<ServiceResponse<TopicDTO>> GetById(Guid id)

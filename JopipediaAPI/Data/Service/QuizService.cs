@@ -1,9 +1,11 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
+using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.DTO.Quiz;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace JopipediaAPI.Data.Service.Interface;
 
@@ -21,24 +23,34 @@ internal class QuizService: IQuizService
         _configuration = configuration;
     }
     
-    async public Task<ServiceResponse<List<QuizDTO>>> GetAll(string? title, string? description)
+    async public Task<ServiceResponse<List<QuizDTO>>> GetAll(QuizFiltersDTO filters)
     {
-        var quizzes = _context.Quizzes.AsQueryable();
+        var queryableResponse = _context.Quizzes.AsQueryable();
 
-        if (!string.IsNullOrEmpty(title))
+        if (!filters.Title.IsNullOrEmpty())
         {
-            quizzes = quizzes.Where(q => q.Title.Contains(title));
+            queryableResponse = queryableResponse.Where(q => q.Title.Contains(filters.Title));
         }
-
-        if (!string.IsNullOrEmpty(description))
+        if (!filters.Description.IsNullOrEmpty())
         {
-            quizzes = quizzes.Where(q => q.Description.Contains(description));
+            queryableResponse = queryableResponse.Where(q => q.Description.Contains(filters.Description));
         }
-
-        var result = await quizzes.ToListAsync();
-
-        return ServiceResponse<List<QuizDTO>>.Success(result.Select(u => _mapper.Map<QuizDTO>(u)).ToList());
+        if (filters.TopicId != Guid.Empty && filters.TopicId != null)
+        {
+            queryableResponse = queryableResponse.Where(q => q.TopicId == filters.TopicId);
+        }
+       
+        
+        var paginatedQuizzes = await PaginatedResponse<Quiz>
+            .CreateAsync(queryableResponse, filters.Page, filters.Take);
+        
+        var data = _mapper.Map<List<QuizDTO>>(paginatedQuizzes.Data);
+        
+        return ServiceResponse<List<QuizDTO>>
+            .Success(data, paginatedQuizzes.Meta);
+        
     }
+   
 
     async public Task<ServiceResponse<QuizDTO>> GetById(Guid id)
     {

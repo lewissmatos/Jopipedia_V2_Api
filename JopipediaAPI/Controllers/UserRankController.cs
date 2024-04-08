@@ -6,6 +6,7 @@ using JopipediaAPI.Data.DTO.Rank;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using tsprojectsAPI.Data.Framework.Helpers;
 
 namespace JopipediaAPI.Controllers
 {
@@ -28,7 +29,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRankService.GetAll();
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -37,7 +38,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRankService.GetById(id);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -46,7 +47,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRankService.Create(body);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -55,7 +56,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRankService.Update(id, body);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -64,7 +65,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRankService.Delete(id);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         //Validate the result of the service

@@ -1,7 +1,6 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
 using JopipediaAPI.Data.DTO.User;
-using JopipediaAPI.Data.DTO.UserRole;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
@@ -25,28 +24,31 @@ public class UserService: IUserService
         _configuration = configuration;
     }
     
-    async public  Task<ServiceResponse<List<UserDTO>>> GetAllUsers()
+    async public  Task<ServiceResponse<List<UserDTO>>> GetAll(UserFiltersDTO filters)
     {
-        //Get list of all users
-        var users = await _context.Users.
-            Include(u => u.Roles).
-            Include(u => u.Rank).
-            Include(u => u.Awards).
-            Include(u => u.Level).
-            Where(u => u.Status == true).
-            ToListAsync();
+        var queryableResponse = _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Rank)
+            .Include(u => u.Awards)
+            .Include(u => u.Level)
+            .Where(u => u.Status == true)
+            .AsQueryable();
+
+        var paginatedUsers = await PaginatedResponse<User>
+            .CreateAsync(queryableResponse, filters.Page, filters.Take);
         
-        return ServiceResponse<List<UserDTO>>.Success(users.Select(u => _mapper.Map<UserDTO>(u)).ToList());
+        var data  = _mapper.Map<List<UserDTO>>(paginatedUsers.Data);
+        return ServiceResponse<List<UserDTO>>.Success(data, paginatedUsers.Meta);
     }
 
-    async public Task<ServiceResponse<UserDTO>> GetUserById(Guid id)
+    async public Task<ServiceResponse<UserDTO>> GetById(Guid id)
     {
         //Get user by id
         var user = await  _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
     }
 
-    async public Task<ServiceResponse<UserDTO>> UpdateUser(Guid id, UpdateUserPayloadDTO updateUserPayload)
+    async public Task<ServiceResponse<UserDTO>> Update(Guid id, UpdateUserPayloadDTO updateUserPayload)
     {
         // Get user to update
         var user = await _context.Users
@@ -101,7 +103,7 @@ public class UserService: IUserService
         return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
     }
     
-    async public Task<ServiceResponse<UserDTO>> DisableUser(Guid id)
+    async public Task<ServiceResponse<UserDTO>> Disable(Guid id)
     {
         //Get user to disable
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -116,7 +118,7 @@ public class UserService: IUserService
         return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
     }
 
-    async public Task<ServiceResponse<UserDTO>> DeleteUser(Guid id)
+    async public Task<ServiceResponse<UserDTO>> Delete(Guid id)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JopipediaAPI.Data.DTO.Quiz;
+using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using tsprojectsAPI.Data.Framework.Helpers;
 
 namespace JopipediaAPI.Controllers
 {
@@ -21,11 +23,11 @@ namespace JopipediaAPI.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery]string? title,[FromQuery] string? description)
+        public async Task<IActionResult> GetAll([FromQuery] QuizFiltersDTO filters)
         {
-            var response = await _quizService.GetAll(title, description);
+            var response = await _quizService.GetAll(filters);
             
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpGet("{id}")]
@@ -33,7 +35,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _quizService.GetById(id);
             
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPost]
@@ -41,7 +43,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _quizService.Create(quiz);
             
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}")]
@@ -49,7 +51,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _quizService.Update(id, quiz);
             
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpDelete("{id}")]
@@ -57,7 +59,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _quizService.Delete(id);
             
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         
@@ -70,7 +72,7 @@ namespace JopipediaAPI.Controllers
             if(response.IsBadRequest)
                 return BadRequest(new {response.Data, response.Message});
 
-            return Ok(new { response.Data, response.Message });
+            return Ok(new { response.Data, response.Message, response.Meta });
         }
     }
 }

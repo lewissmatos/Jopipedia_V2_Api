@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JopipediaAPI.Data.DTO.Pagination;
-using JopipediaAPI.Data.DTO.Question;
+using JopipediaAPI.Data.DTO.Award;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,50 +12,49 @@ namespace JopipediaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class QuestionController : ControllerBase
+    public class AwardController : ControllerBase
     {
-        private readonly IQuestionService _questionService;
+        private readonly IAwardService _awardService;
         
-        public QuestionController(IQuestionService questionService)
+        public AwardController(IAwardService awardService)
         {
-            _questionService = questionService;
+            _awardService = awardService;
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QuestionFitlersDTO filters)
+        public async Task<IActionResult> GetAll([FromQuery] AwardFiltersDTO filters)
         {
-            var response = await _questionService.GetAll(filters);
-            return await ValidateResponse.Validate(this, response);
+            var response = await _awardService.GetAll(filters);
+            return await ValidateResponse.Validate(this, response );
         }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var response = await _questionService.GetById(id);
+            var response = await _awardService.GetById(id);
             return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] QuestionDTO question)
+        public async Task<IActionResult> Create([FromBody] AwardDTO award)
         {
-            var response = await _questionService.Create(question);
+            var response = await _awardService.Create(award);
             return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] QuestionDTO question)
+        public async Task<IActionResult> Update(Guid id, [FromBody] AwardDTO award)
         {
-            var response = await _questionService.Update(id, question);
+            var response = await _awardService.Update(id, award);
             return await ValidateResponse.Validate(this, response);
         }
         
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var response = await _questionService.Delete(id);
+            var response = await _awardService.Delete(id);
             return await ValidateResponse.Validate(this, response);
         }
         
     }
 }
-

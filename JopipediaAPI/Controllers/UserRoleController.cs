@@ -1,6 +1,7 @@
 using JopipediaAPI.Data.DTO.UserRole;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
+using tsprojectsAPI.Data.Framework.Helpers;
 
 namespace JopipediaAPI.Controllers
 {
@@ -21,7 +22,7 @@ namespace JopipediaAPI.Controllers
         {
           var response = await _userRoleService.GetAll();
           
-          return await ValidateResult(response);
+          return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -30,7 +31,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRoleService.GetById(id);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -39,7 +40,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRoleService.Create(body);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         
@@ -48,7 +49,7 @@ namespace JopipediaAPI.Controllers
         {
             var response = await _userRoleService.Update(id, body);
           
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
 
         }
         

@@ -1,7 +1,9 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
 using JopipediaAPI.Data.DTO.Answer;
+using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.Framework.Helpers;
+using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +23,29 @@ public class AnswerService: IAnswerService
         _configuration = configuration;
     }
     
-    async public Task<ServiceResponse<List<AnswerDTO>>> GetAll()
+    async public Task<ServiceResponse<List<AnswerDTO>>> GetAll(AnswerFiltersDTO? filters)
     {
-        var answers = await _context.Answers.ToListAsync();
-        return ServiceResponse<List<AnswerDTO>>.Success(_mapper.Map<List<AnswerDTO>>(answers));
+        var queryableAnswers = _context.Answers
+            .Include(a => a.Question)
+            .Where(a => a.Status == true)
+            .AsQueryable();
+        
+        if(filters.QuestionId != Guid.Empty && filters.QuestionId.HasValue)
+        {
+            queryableAnswers = queryableAnswers.Where(a => a.QuestionId == filters.QuestionId);
+        }
+        if(filters.IsCorrect != null)
+        {
+            queryableAnswers = queryableAnswers.Where(a => a.IsCorrect == filters.IsCorrect);
+        }
+        
+        var paginatedAnswers = await PaginatedResponse<Answer>
+            .CreateAsync(queryableAnswers, filters.Page, filters.Take);
+        
+        var data = _mapper.Map<List<AnswerDTO>>(paginatedAnswers.Data);
+        
+        return ServiceResponse<List<AnswerDTO>>
+            .Success(data, paginatedAnswers.Meta);
     }
 
     async public Task<ServiceResponse<AnswerDTO>> GetById(Guid id)

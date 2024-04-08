@@ -1,6 +1,7 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
 using JopipediaAPI.Data.DTO;
+using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
@@ -22,11 +23,17 @@ public class ScoreService: IScoreService
     }
 
 
-    async public Task<ServiceResponse<List<ScoreDTO>>> GetAll()
+    async public Task<ServiceResponse<List<ScoreDTO>>> GetAll(PaginationParamsDTO pagination)
     {
-        var scores = await _context.Scores.ToListAsync();
+        var queryableResult = _context.Scores.AsQueryable();
         
-        return ServiceResponse<List<ScoreDTO>>.Success(scores.Select(s => _mapper.Map<ScoreDTO>(s)).ToList());
+        var paginatedScores = await PaginatedResponse<Score>
+            .CreateAsync(queryableResult, pagination.Page, pagination.Take);
+        
+        var data = _mapper.Map<List<ScoreDTO>>(paginatedScores.Data);
+        
+        return ServiceResponse<List<ScoreDTO>>
+            .Success(data, paginatedScores.Meta);
     }
 
     async public Task<ServiceResponse<ScoreDTO>> GetById(Guid id)

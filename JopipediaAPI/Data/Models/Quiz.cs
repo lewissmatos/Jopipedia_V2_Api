@@ -12,6 +12,6 @@ public class Quiz: BaseModel
     public string? Emoji { get; set; }
     public bool IsPrivate { get; set; } = false;
     public string? Passcode { get; set; }
-    public Guid TopicId { get; set; }
     public Topic Topic { get; set; }
+    public Guid TopicId { get; set; }
 }

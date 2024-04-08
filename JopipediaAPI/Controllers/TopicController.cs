@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using tsprojectsAPI.Data.Framework.Helpers;
 
 namespace JopipediaAPI.Controllers
 {
@@ -21,38 +23,38 @@ namespace JopipediaAPI.Controllers
         }
         
         [HttpGet]
-        async public Task<IActionResult> GetAll()
+        async public Task<IActionResult> GetAll([FromQuery] PaginationParamsDTO pagination)
         {
-            var response = await _topicService.GetAll();
-            return await ValidateResult(response);
+            var response = await _topicService.GetAll(pagination);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpGet("{id}")]
         async public Task<IActionResult> GetById(Guid id)
         {
             var response = await _topicService.GetById(id);
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPost]
         async public Task<IActionResult> Create([FromBody] TopicDTO topic)
         {
             var response = await _topicService.Create(topic);
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpPut("{id}")]
         async public Task<IActionResult> Update(Guid id, [FromBody] TopicDTO topic)
         {
             var response = await _topicService.Update(id, topic);
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         [HttpDelete("{id}")]
         async public Task<IActionResult> Delete(Guid id)
         {
             var response = await _topicService.Delete(id);
-            return await ValidateResult(response);
+            return await ValidateResponse.Validate(this, response);
         }
         
         //Validate the result of the service
@@ -64,15 +66,8 @@ namespace JopipediaAPI.Controllers
             if(response.IsBadRequest)
                 return BadRequest(new {response.Data, response.Message});
 
-            // Implement the pagination here and also to the other controllers
-            var meta = new 
-            {
-                currentPage = 0,
-                totalPages = 0,
-                pageSize = 0,
-                totalCount = 0
-            };
-            return Ok(new { response.Data, response.Message, meta });
+           
+            return Ok(new { response.Data, response.Message, response.Meta });
         }
     }
 }

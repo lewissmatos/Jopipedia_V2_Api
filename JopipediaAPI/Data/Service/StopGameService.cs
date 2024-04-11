@@ -60,35 +60,35 @@ public class StopGameService : IStopGameService
             return ServiceResponse<dynamic>.Success(false);
         }
 
-        using (var _httpClient = new HttpClient() )
-        {
-            _httpClient.DefaultRequestHeaders.Add("Authorization",
-                $"Bearer {_configuration["OpenAI:Key"]}");
-
-            var prompt = $"Is {results.Word} a kind of {results.Category}? Just Answer 'Yes' or 'No'"; // Replace with your word and category
-
-            var requestBody = new
-            {
-                model = "gpt-3.5-turbo",
-                max_tokens = 5,
-                messages = new[] { new { role = "user", content = prompt } }
-            };
-
-            var jsonRequest = Newtonsoft.Json.JsonConvert.SerializeObject(requestBody);
-            var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", httpContent);
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            var result =  JsonConvert.DeserializeObject<Root>(responseContent);
-
-            var answer = result.Choices?[0]?.Message?.Content
-                .ToLower().Contains("yes");
-
-            return ServiceResponse<dynamic>.Success(answer);
-           
-        }
+        // using (var _httpClient = new HttpClient() )
+        // {
+        //     _httpClient.DefaultRequestHeaders.Add("Authorization",
+        //         $"Bearer {_configuration["OpenAI:Key"]}");
+        //
+        //     var prompt = $"Is {results.Word} a kind of {results.Category}? Just Answer 'Yes' or 'No'"; 
+        //
+        //     var requestBody = new
+        //     {
+        //         model = "gpt-3.5-turbo",
+        //         max_tokens = 5,
+        //         messages = new[] { new { role = "user", content = prompt } }
+        //     };
+        //
+        //     var jsonRequest = Newtonsoft.Json.JsonConvert.SerializeObject(requestBody);
+        //     var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        //
+        //     var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", httpContent);
+        //
+        //     var responseContent = await response.Content.ReadAsStringAsync();
+        //
+        //     var result =  JsonConvert.DeserializeObject<Root>(responseContent);
+        //
+        //     var answer = result.Choices?[0]?.Message?.Content
+        //         .ToLower().Contains("yes");
+        //
+        //     return ServiceResponse<dynamic>.Success(answer);
+        //    
+        // }
     }
 }
 

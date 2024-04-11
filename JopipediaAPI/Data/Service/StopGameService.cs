@@ -40,6 +40,12 @@ public class Root
 }
 public class StopGameService : IStopGameService
 {
+    private readonly IConfiguration _configuration;
+    
+    public StopGameService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
 
     async public Task<ServiceResponse<dynamic>> CheckWord(StopGameCheckResultsDTO results)
     {
@@ -54,10 +60,10 @@ public class StopGameService : IStopGameService
             return ServiceResponse<dynamic>.Success(false);
         }
 
-        using (var _httpClient = new HttpClient())
+        using (var _httpClient = new HttpClient() )
         {
             _httpClient.DefaultRequestHeaders.Add("Authorization",
-                $"Bearer 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");
+                $"Bearer {_configuration["OpenAI:Key"]}");
 
             var prompt = $"Is {results.Word} a kind of {results.Category}? Just Answer 'Yes' or 'No'"; // Replace with your word and category
 
@@ -80,7 +86,7 @@ public class StopGameService : IStopGameService
             var answer = result.Choices?[0]?.Message?.Content
                 .ToLower().Contains("yes");
 
-            return ServiceResponse<dynamic>.Success(result);
+            return ServiceResponse<dynamic>.Success(answer);
            
         }
     }

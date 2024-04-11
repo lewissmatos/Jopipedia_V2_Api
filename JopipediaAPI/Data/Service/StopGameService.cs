@@ -50,45 +50,45 @@ public class StopGameService : IStopGameService
     async public Task<ServiceResponse<dynamic>> CheckWord(StopGameCheckResultsDTO results)
     {
         
-        // if (results.Category.IsNullOrEmpty() || results.Word.IsNullOrEmpty())
-        // {
-        //     return ServiceResponse<dynamic>.BadRequest("badRequest", "Invalid input");
-        // }
-        //
-        // if (!results.Word.ToLower().Contains(results.Letter.ToLower()))
-        // {
-        //     return ServiceResponse<dynamic>.Success(false);
-        // }
+        if (results.Category.IsNullOrEmpty() || results.Word.IsNullOrEmpty())
+        {
+            return ServiceResponse<dynamic>.BadRequest("badRequest", "Invalid input");
+        }
 
-        // using (var _httpClient = new HttpClient() )
-        // {
-        //     _httpClient.DefaultRequestHeaders.Add("Authorization",
-        //         $"Bearer {_configuration["OpenAI:Key"]}");
-        //
-        //     var prompt = $"Is {results.Word} a kind of {results.Category}? Just Answer 'Yes' or 'No'"; 
-        //
-        //     var requestBody = new
-        //     {
-        //         model = "gpt-3.5-turbo",
-        //         max_tokens = 5,
-        //         messages = new[] { new { role = "user", content = prompt } }
-        //     };
-        //
-        //     var jsonRequest = Newtonsoft.Json.JsonConvert.SerializeObject(requestBody);
-        //     var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-        //
-        //     var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", httpContent);
-        //
-        //     var responseContent = await response.Content.ReadAsStringAsync();
-        //
-        //     var result =  JsonConvert.DeserializeObject<Root>(responseContent);
-        //
-        //     var answer = result.Choices?[0]?.Message?.Content
-        //         .ToLower().Contains("yes");
-        //
-        //     return ServiceResponse<dynamic>.Success(answer);
-        //    
-        // }
+        if (!results.Word.ToLower().Contains(results.Letter.ToLower()))
+        {
+            return ServiceResponse<dynamic>.Success(false);
+        }
+
+        using (var _httpClient = new HttpClient() )
+        {
+            _httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {_configuration["OpenAI:Key"]}");
+
+            var prompt = $"Is {results.Word} a kind of {results.Category}? Just Answer 'Yes' or 'No'"; 
+
+            var requestBody = new
+            {
+                model = "gpt-3.5-turbo",
+                max_tokens = 5,
+                messages = new[] { new { role = "user", content = prompt } }
+            };
+
+            var jsonRequest = Newtonsoft.Json.JsonConvert.SerializeObject(requestBody);
+            var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", httpContent);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var result =  JsonConvert.DeserializeObject<Root>(responseContent);
+
+            var answer = result.Choices?[0]?.Message?.Content
+                .ToLower().Contains("yes");
+
+            return ServiceResponse<dynamic>.Success(answer);
+           
+        }
     }
 }
 

@@ -50,15 +50,15 @@ public class StopGameService : IStopGameService
     async public Task<ServiceResponse<dynamic>> CheckWord(StopGameCheckResultsDTO results)
     {
         
-        if (results.Category.IsNullOrEmpty() || results.Word.IsNullOrEmpty())
-        {
-            return ServiceResponse<dynamic>.BadRequest("badRequest", "Invalid input");
-        }
-
-        if (!results.Word.ToLower().Contains(results.Letter.ToLower()))
-        {
-            return ServiceResponse<dynamic>.Success(false);
-        }
+        // if (results.Category.IsNullOrEmpty() || results.Word.IsNullOrEmpty())
+        // {
+        //     return ServiceResponse<dynamic>.BadRequest("badRequest", "Invalid input");
+        // }
+        //
+        // if (!results.Word.ToLower().Contains(results.Letter.ToLower()))
+        // {
+        //     return ServiceResponse<dynamic>.Success(false);
+        // }
 
         // using (var _httpClient = new HttpClient() )
         // {

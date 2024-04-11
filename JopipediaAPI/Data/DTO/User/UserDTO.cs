@@ -1,5 +1,6 @@
 using JopipediaAPI.Data.DTO.Award;
 using JopipediaAPI.Data.DTO.Rank;
+using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.DTO.UserLevel;
 using JopipediaAPI.Data.DTO.UserRole;
 
@@ -22,4 +23,7 @@ public class UserDTO
     public Guid? RankId { get; set; }
     public List<AwardDTO>? Awards { get; set; }
     public List<Guid>? AwardIds { get; set; }
+    public List<TopicDTO> Interests { get; set; }
+    public List<Guid> InterestIds { get; set; }
+
 }

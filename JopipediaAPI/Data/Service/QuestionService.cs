@@ -26,9 +26,7 @@ public class QuestionService: IQuestionService
     
     async public Task<ServiceResponse<List<QuestionDTO>>> GetAll(QuestionFitlersDTO? filters)
     {
-        var queryableResponse = _context.Questions
-            .Where(q => q.Status == true)
-            .AsQueryable();
+        var queryableResponse = _context.Questions.AsQueryable();
 
 
         if (!filters.Title.IsNullOrEmpty())

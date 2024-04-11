@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JopipediaAPI.Data.DTO.Answer;
 using JopipediaAPI.Data.DTO.Pagination;
 using JopipediaAPI.Data.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using tsprojectsAPI.Data.Framework.Helpers;
@@ -13,6 +14,7 @@ namespace JopipediaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AnswerController : ControllerBase
     {
         

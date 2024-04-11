@@ -27,7 +27,6 @@ public class AnswerService: IAnswerService
     {
         var queryableAnswers = _context.Answers
             .Include(a => a.Question)
-            .Where(a => a.Status == true)
             .AsQueryable();
         
         if(filters.QuestionId != Guid.Empty && filters.QuestionId.HasValue)

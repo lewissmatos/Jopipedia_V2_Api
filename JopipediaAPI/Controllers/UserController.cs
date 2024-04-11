@@ -1,6 +1,7 @@
 using JopipediaAPI.Data.DTO.User;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using tsprojectsAPI.Data.Framework.Helpers;
@@ -8,9 +9,10 @@ using tsprojectsAPI.Data.Framework.Helpers;
 namespace JopipediaAPI.Controllers
 {
     
-    
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class UserController : ControllerBase
     {
         

@@ -1,6 +1,6 @@
 namespace JopipediaAPI.Data.Model;
 
-public class Topic
+public class Topic: BaseModel
 {
     public Guid Id { get; set; }
     public String Title { get; set; }

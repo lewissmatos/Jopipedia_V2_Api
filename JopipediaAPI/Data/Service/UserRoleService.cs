@@ -24,11 +24,15 @@ public class UserRoleService : IUserRoleService
 
     async public Task<ServiceResponse<List<UserRoleDTO>>> GetAll()
     {
-        // Get all user roles
-        var userRoles = await _context.UserRoles.ToListAsync();
+        //Get all user roles
+        var queryableResponse = _context.UserRoles.AsQueryable();
+        //Create paginated response
+        var paginatedUserRoles = await PaginatedResponse<UserRole>.CreateAsync(queryableResponse);
+        //Map user roles to DTO
+        var data = paginatedUserRoles.Data;
+        //Return paginated user roles
         return ServiceResponse<List<UserRoleDTO>>
-            .Success(userRoles.Select(ur => _mapper.Map<UserRoleDTO>(ur))
-                .ToList());
+            .Success(_mapper.Map<List<UserRoleDTO>>(data), paginatedUserRoles.Meta);
     }
 
     async public Task<ServiceResponse<UserRoleDTO>> GetById(Guid id)

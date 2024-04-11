@@ -26,7 +26,6 @@ public class AwardService: IAwardService
     async public Task<ServiceResponse<List<AwardDTO>>> GetAll(AwardFiltersDTO filters)
     {
         var paginatedResponse = _context.Awards
-            .Where(a => a.Status == true)
             .Include(a => a.Users)
             .AsQueryable();
         

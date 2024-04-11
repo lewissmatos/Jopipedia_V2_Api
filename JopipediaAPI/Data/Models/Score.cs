@@ -1,6 +1,6 @@
 namespace JopipediaAPI.Data.Model;
 
-public class Score
+public class Score: BaseModel
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

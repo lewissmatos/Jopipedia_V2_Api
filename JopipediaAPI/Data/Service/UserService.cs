@@ -31,7 +31,6 @@ public class UserService: IUserService
             .Include(u => u.Rank)
             .Include(u => u.Awards)
             .Include(u => u.Level)
-            .Where(u => u.Status == true)
             .AsQueryable();
 
         var paginatedUsers = await PaginatedResponse<User>
@@ -66,6 +65,7 @@ public class UserService: IUserService
         //Initialize user roles and awards
         var userRoles = new List<UserRole>();
         var userAwards = new List<Award>();
+        var userInterests = new List<Topic>();
         // Get user roles, awards and rank
         if(updateUserPayload.RoleIds != null)
         {
@@ -84,6 +84,15 @@ public class UserService: IUserService
         {
             userAwards = user.Awards;
         }
+
+        if (updateUserPayload.InterestIds != null)
+        {
+            userInterests = await _context.Topics.Where(t => updateUserPayload.InterestIds.Contains(t.Id)).ToListAsync();
+        }
+        else
+        {
+            userInterests = user.Interests;
+        }
         
         updateUserPayload.Id = user.Id;
         // Map update payload to user
@@ -91,11 +100,12 @@ public class UserService: IUserService
         var userRank = await _context.UserRanks.FirstOrDefaultAsync(r => r.Id == updateUserPayload.RankId);
         var userLevel = await _context.UserLevels.FirstOrDefaultAsync(l => l.Id == updateUserPayload.LevelId);
         
-        // Update user roles, awards and rank
+        // Update user roles, awards, rank level, and interests 
         user.Awards = userAwards;
         user.Rank = userRank;
         user.Roles = userRoles;
         user.Level = userLevel;
+        user.Interests = userInterests;
 
         // Save changes
         await _context.SaveChangesAsync();

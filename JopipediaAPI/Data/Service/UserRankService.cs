@@ -11,14 +11,14 @@ namespace JopipediaAPI.Data.Service;
 public class UserRankService: IUserRankService
 {
       
-    private readonly AppDbContext _dbContext;
+    private readonly AppDbContext _context;
     private readonly IMapper _mapper;
     private readonly IConfiguration _configuration;
 
     
-    public UserRankService(AppDbContext dbContext,  IMapper mapper, IConfiguration configuration)
+    public UserRankService(AppDbContext context,  IMapper mapper, IConfiguration configuration)
     {
-        _dbContext = dbContext;
+        _context = context;
         _mapper = mapper;
         _configuration = configuration;
     }
@@ -26,14 +26,20 @@ public class UserRankService: IUserRankService
     
     async public Task<ServiceResponse<List<UserRankDTO>>> GetAll()
     {
-        var userRanks = await _dbContext.UserRanks.ToListAsync();
-        return ServiceResponse<List<UserRankDTO>>.Success(_mapper.Map<List<UserRankDTO>>(userRanks));
+        var queryableResponse = _context.UserRanks.AsQueryable();
+
+        var paginatedUserRanks = await PaginatedResponse<UserRank>.CreateAsync(queryableResponse);
+
+        var data = paginatedUserRanks.Data;
+        
+        return ServiceResponse<List<UserRankDTO>>
+            .Success(_mapper.Map<List<UserRankDTO>>(data), paginatedUserRanks.Meta);
     }
     
 
     async public Task<ServiceResponse<UserRankDTO>> GetById(Guid id)
     {
-        var userRank = await _dbContext.UserRanks.FirstOrDefaultAsync(u => u.Id == id);
+        var userRank = await _context.UserRanks.FirstOrDefaultAsync(u => u.Id == id);
         if (userRank == null)
             return ServiceResponse<UserRankDTO>.NotFound("userRankNotFound", "User Rank not found");
         return ServiceResponse<UserRankDTO>.Success(_mapper.Map<UserRankDTO>(userRank));
@@ -42,33 +48,33 @@ public class UserRankService: IUserRankService
     async public Task<ServiceResponse<UserRankDTO>> Create(UserRankDTO userRank)
     {
         var newUserRank = _mapper.Map<UserRank>(userRank);
-        await _dbContext.UserRanks.AddAsync(newUserRank);
-        await _dbContext.SaveChangesAsync();
+        await _context.UserRanks.AddAsync(newUserRank);
+        await _context.SaveChangesAsync();
         return ServiceResponse<UserRankDTO>.Success(_mapper.Map<UserRankDTO>(newUserRank));
     }
 
     async public Task<ServiceResponse<UserRankDTO>> Update(Guid id, UserRankDTO userRank)
     {
         
-        var userRankToUpdate = await _dbContext.UserRanks.FirstOrDefaultAsync(u => u.Id == id);
+        var userRankToUpdate = await _context.UserRanks.FirstOrDefaultAsync(u => u.Id == id);
         if (userRankToUpdate == null)
             return ServiceResponse<UserRankDTO>.NotFound("userRankNotFound", "User Rank not found");
         
         userRankToUpdate.Name = userRank.Name ?? RankName.rookie;
         
-        _dbContext.UserRanks.Update(userRankToUpdate);
-        await _dbContext.SaveChangesAsync();
+        _context.UserRanks.Update(userRankToUpdate);
+        await _context.SaveChangesAsync();
         return ServiceResponse<UserRankDTO>.Success(_mapper.Map<UserRankDTO>(userRankToUpdate));
     }
 
    async public Task<ServiceResponse<UserRankDTO>> Delete(Guid id)
     {
-        var userRankToDelete = await _dbContext.UserRanks.FirstOrDefaultAsync(u => u.Id == id);
+        var userRankToDelete = await _context.UserRanks.FirstOrDefaultAsync(u => u.Id == id);
         if (userRankToDelete == null)
             return ServiceResponse<UserRankDTO>.NotFound("userRankNotFound", "User Rank not found");
         
-        _dbContext.UserRanks.Remove(userRankToDelete);
-        await _dbContext.SaveChangesAsync();
+        _context.UserRanks.Remove(userRankToDelete);
+        await _context.SaveChangesAsync();
         return ServiceResponse<UserRankDTO>.Success(_mapper.Map<UserRankDTO>(userRankToDelete));
     }
 }

@@ -28,4 +28,5 @@ public class User: BaseModel
     public UserRank? Rank { get; set; }
     public Guid? RankId { get; set; }
     public List<Award>? Awards { get; set; }
+    public List<Topic> Interests { get; set; }
 }

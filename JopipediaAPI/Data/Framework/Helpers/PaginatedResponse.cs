@@ -20,7 +20,7 @@ public class PaginatedResponse<T>
     public bool HasPreviousPage => Meta.CurrentPage > 1;
     public bool HasNextPage => Meta.CurrentPage < Meta.TotalPages;
 
-    public static async Task<PaginatedResponse<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
+    public static async Task<PaginatedResponse<T>> CreateAsync(IQueryable<T> source, int pageIndex = 1, int pageSize = 10)
     {
         var count = await source.CountAsync();
         var res = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();

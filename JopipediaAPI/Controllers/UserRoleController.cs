@@ -1,5 +1,6 @@
 using JopipediaAPI.Data.DTO.UserRole;
 using JopipediaAPI.Data.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using tsprojectsAPI.Data.Framework.Helpers;
 
@@ -7,6 +8,8 @@ namespace JopipediaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class UserRoleController : ControllerBase
     {
         

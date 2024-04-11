@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JopipediaAPI.Data.DTO.Award;
 using JopipediaAPI.Data.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using tsprojectsAPI.Data.Framework.Helpers;
@@ -12,6 +13,8 @@ namespace JopipediaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class AwardController : ControllerBase
     {
         private readonly IAwardService _awardService;

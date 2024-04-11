@@ -10,6 +10,7 @@ using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,7 @@ builder.Services.AddSingleton(mapper);
     builder.Services.AddScoped<IScoreService, ScoreService>();
 #endregion
 
-// Add Authentication and Authorization with JWT to Services
+// Add Authenti// Add Authentication and Authorization with JWT to Services
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -63,6 +64,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+                var result = JsonConvert.SerializeObject(new { error = "You are not authorized to access this resource" });
+                return context.Response.WriteAsync(result);
+            },
         };
     });
 
@@ -74,6 +87,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
+
 // Add Swagger
 builder.Services.AddSwaggerGen(c =>
 {
@@ -84,6 +98,13 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT"
     });
+
+    // c.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
+    // {
+    //     Description = "Basic Authentication",
+    //     Type = SecuritySchemeType.Http,
+    //     Scheme = "basic"
+    // });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -97,9 +118,8 @@ builder.Services.AddSwaggerGen(c =>
                 }
             },
             new List<string>()
-        }
+        },
     });
-
 });
 
 // Create the WebApplication.

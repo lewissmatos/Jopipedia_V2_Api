@@ -27,7 +27,18 @@ internal class TopicService: ITopicService
     async public  Task<ServiceResponse<List<TopicDTO>>> GetAll(PaginationParamsDTO pagination)
     {
 
-        var queryableResponse = _context.Topics.AsQueryable();
+        var queryableResponse = _context.Topics
+            .OrderByDescending( t => t.Title)
+            .Include( t => t.Quizzes)
+            .Select( t => new Topic()
+            {
+                Id =  t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                Quizzes = t.Quizzes,
+                QuizCount = t.Quizzes.Count
+            })
+            .AsQueryable();
 
         var paginatedTopics = await PaginatedResponse<Topic>
             .CreateAsync(queryableResponse, pagination.Page,pagination.Take);
@@ -40,7 +51,11 @@ internal class TopicService: ITopicService
     async public Task<ServiceResponse<TopicDTO>> GetById(Guid id)
     {
         var topic = await  _context.Topics.FirstOrDefaultAsync(t => t.Id == id);
-        return ServiceResponse<TopicDTO>.Success(_mapper.Map<TopicDTO>(topic));
+        var QuizCount = _context.Quizzes.Where(q => q.Topic.Id == id).Count();
+
+        var data = _mapper.Map<TopicDTO>(topic);
+        data.QuizCount = QuizCount;
+        return ServiceResponse<TopicDTO>.Success();
     }
 
     async public Task<ServiceResponse<TopicDTO>> Create(TopicDTO topicDTO)

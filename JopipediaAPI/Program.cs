@@ -53,6 +53,8 @@ builder.Services.AddSingleton(mapper);
     builder.Services.AddScoped<IAnswerService, AnswerService>();
     builder.Services.AddScoped<IScoreService, ScoreService>();
     builder.Services.AddScoped<IStopGameService, StopGameService>();
+    builder.Services.AddScoped<IStopGameAnswerService, StopGameAnswerService>();
+    builder.Services.AddScoped<IStopGameRoundService, StopGameRoundService>();
 #endregion
 
 // Add Authenti// Add Authentication and Authorization with JWT to Services

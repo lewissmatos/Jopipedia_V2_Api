@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using JopipediaAPI.Data.DTO;
 using JopipediaAPI.Data.DTO.Pagination;
+using JopipediaAPI.Data.DTO.User;
+using JopipediaAPI.Data.Framework.Helpers;
+using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -43,6 +46,9 @@ namespace JopipediaAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ScoreDTO score)
         {
+            UserDTO user = (UserDTO)AuthManager.GetCurrentUser(HttpContext);
+
+            score.User = user;
             var response = await _scoreService.Create(score);
             return await ValidateResponse.Validate(this, response);
         }

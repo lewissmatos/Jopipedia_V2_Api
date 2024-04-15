@@ -28,7 +28,11 @@ public class AuthService: IAuthService
     async public Task<ServiceResponse<LoginResponseDTO>> Login(LoginPayloadDTO loginPayload)
     {
         //Get User
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == loginPayload.Username);
+        var user = await _dbContext.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Rank)
+            .Include(u => u.Level)
+            .FirstOrDefaultAsync(u => u.Username == loginPayload.Username);
         
         //Check if User Exists
         if (user == null)
@@ -61,21 +65,25 @@ public class AuthService: IAuthService
         //Check if Username is already in use
         if (await IsUserNameInUser(signUpPayload.Username))
             return ServiceResponse<UserDTO>.BadRequest("usernameInUse", "Username is already in use");
-
-        //Create User
+        //Create User Object
         var user = _mapper.Map<User>(signUpPayload);
+        
         //Hash Password
         user.Password = PasswordHasher.HashPassword(signUpPayload.Password);
+        
         //Set First User Rank to Rookie
-        user.Rank = await _dbContext.UserRanks.FirstOrDefaultAsync(r => r.Name == RankName.rookie);
-        //Ser First User Role
+        var rookieRank = await _dbContext.UserRanks.FirstOrDefaultAsync(r => r.Name == RankName.rookie);
+        user.Rank = rookieRank;
+        user.RankId = rookieRank.Id;
+        //Set User Role
         var role = await _dbContext.UserRoles.FirstOrDefaultAsync(r => r.Name == "common");
         user.Roles = new List<UserRole> { role };
+        user.RoleIds = new List<Guid> { role.Id };
         
         //Set User Level
         var userLevel = new UserLevel();
         user.Level = userLevel;
-        
+
         //Save User Status
         await _dbContext.Users.AddAsync(user);
         // Save Changes

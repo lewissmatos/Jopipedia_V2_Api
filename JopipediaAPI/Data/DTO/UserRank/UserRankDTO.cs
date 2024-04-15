@@ -1,3 +1,4 @@
+using JopipediaAPI.Data.DTO.User;
 using JopipediaAPI.Data.Model;
 
 namespace JopipediaAPI.Data.DTO.Rank;

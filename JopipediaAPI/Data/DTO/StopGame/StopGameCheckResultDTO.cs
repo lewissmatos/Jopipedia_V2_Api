@@ -1,6 +1,6 @@
 namespace JopipediaAPI.Data.DTO.StopGame;
 
-public class StopGameCheckResultsDTO
+public class StopGameCheckResultDTO
 {
     public String Category { get; set; }
     public String Word { get; set; }

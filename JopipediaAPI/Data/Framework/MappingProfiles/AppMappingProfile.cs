@@ -5,6 +5,7 @@ using JopipediaAPI.Data.DTO.Award;
 using JopipediaAPI.Data.DTO.Question;
 using JopipediaAPI.Data.DTO.Quiz;
 using JopipediaAPI.Data.DTO.Rank;
+using JopipediaAPI.Data.DTO.StopGame;
 using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.DTO.User;
 using JopipediaAPI.Data.DTO.UserLevel;
@@ -30,6 +31,12 @@ public class AppMappingProfile: Profile
             CreateMap<Question, QuestionDTO>().ReverseMap();
             CreateMap<Answer, AnswerDTO>().ReverseMap();
             CreateMap<Score, ScoreDTO>().ReverseMap();
+            CreateMap<StopGame, StopGameDTO>().ReverseMap();
+            CreateMap<StopGame, AddStopGameRountDTO>().ReverseMap();
+            CreateMap<StopGamePlayer, StopGamePlayerDTO>().ReverseMap();
+            CreateMap<StopGameRound, StopGameRoundDTO>().ReverseMap();
+            CreateMap<StopGameAnswer, StopGameAnswerDTO>().ReverseMap();
+            CreateMap<StopGameAnswer, CreateStopGameAnswerDTO>().ReverseMap();
         #endregion
     }
 }

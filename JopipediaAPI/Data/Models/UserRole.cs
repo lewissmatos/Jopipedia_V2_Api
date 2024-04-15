@@ -5,7 +5,7 @@ namespace JopipediaAPI.Data.Model;
 public class UserRole: BaseModel
 {
     public Guid Id { get; set; }
-    [MaxLength(80)]
+    [MaxLength(20)]
     public string Name { get; set; }
     [MaxLength(200)]
     public string? Description { get; set; }

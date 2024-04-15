@@ -49,18 +49,16 @@ public class ScoreService: IScoreService
     async public Task<ServiceResponse<ScoreDTO>> Create(ScoreDTO score)
     {
         var newScore = _mapper.Map<Score>(score);
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == score.UserId);
-        if (user == null)
-        {
-            return ServiceResponse<ScoreDTO>.NotFound("notFound","User not found");
-        }
+        
         var quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == score.QuizId);
         if (quiz == null)
         {
             return ServiceResponse<ScoreDTO>.NotFound("notFound","Quiz not found");
         }
-        
-        newScore.User = user;
+
+        var mappedUser =  _mapper.Map<User>(score.User);
+
+        newScore.User = mappedUser;
         newScore.Quiz = quiz;
         
         await _context.Scores.AddAsync(newScore);

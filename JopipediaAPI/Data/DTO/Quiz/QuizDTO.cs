@@ -1,8 +1,10 @@
 using JopipediaAPI.Data.DTO.Topic;
+using JopipediaAPI.Data.DTO.User;
+using JopipediaAPI.Data.Model;
 
 namespace JopipediaAPI.Data.DTO.Quiz;
 
-public class QuizDTO
+public class QuizDTO: BaseModel
 {
     public Guid? Id { get; set; }
     public string? Title { get; set; }
@@ -11,6 +13,11 @@ public class QuizDTO
     public string? Emoji { get; set; }
     public bool IsPrivate { get; set; }  = false;
     public string? Passcode { get; set; }
-    public Guid? TopicId { get; set; }
-    public TopicDTO? Topic { get; set; }
+    public List<Guid>? TopicIds { get; set; }
+    public List<TopicDTO>? Topics { get; set; }
+    public UserDTO? createdBy { get; set; }
+    public Guid? createdById { get; set; }
+    public int? QuestionsCount { get; set; }
+    
+    public string Difficulty { get; set; }
 }

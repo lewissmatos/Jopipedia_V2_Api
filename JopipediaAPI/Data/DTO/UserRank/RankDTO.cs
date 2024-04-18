@@ -3,8 +3,12 @@ using JopipediaAPI.Data.Model;
 
 namespace JopipediaAPI.Data.DTO.Rank;
 
-public class UserRankDTO
+public class RankDTO
 {
     public Guid? Id { get; set; }
     public string? Name { get; set; } = RankName.rookie;
+    
+    public int Index { get; set; }
+    
+    public int? TopPoints { get; set; }
 }

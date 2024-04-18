@@ -55,12 +55,14 @@ namespace JopipediaAPI.Data.Framework.Helpers
                 string userId = userClaims.FirstOrDefault(o => o.Type == "UserId")?.Value;
                 string username = userClaims.FirstOrDefault(o => o.Type == "Username")?.Value;
                 string email = userClaims.FirstOrDefault(o => o.Type == "Email")?.Value;
+                
 
                 return new UserDTO
                 {
                     Id = new Guid(userId),
                     Username = username,
                     Email = email,
+                    
                 };
             }
 

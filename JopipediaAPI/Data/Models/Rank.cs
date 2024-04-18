@@ -10,8 +10,12 @@ public class RankName
     public static readonly string legend = "legend";
     
 }
-public class UserRank: BaseModel
+public class Rank: BaseModel
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = RankName.rookie;
+    
+    public int Index { get; set; }
+    
+    public int? TopPoints { get; set; }
 }

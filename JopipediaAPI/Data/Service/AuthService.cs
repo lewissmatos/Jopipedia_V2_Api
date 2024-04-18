@@ -6,6 +6,7 @@ using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using tsprojectsAPI.Data.Framework.Helpers;
 
 namespace JopipediaAPI.Data.Service;
@@ -41,18 +42,51 @@ public class AuthService: IAuthService
         //Check if User is Active
         if (!user.Status)
             return ServiceResponse<LoginResponseDTO>.BadRequest( "inactiveUser","User Not Active");
-
-
-        //Check if Password is Correct
-        if (!PasswordHasher.VerifyPassword(loginPayload.Password, user.Password))
+        
+        if(user.Password.IsNullOrEmpty() && !loginPayload.Password.IsNullOrEmpty())
         {
-            return ServiceResponse<LoginResponseDTO>.BadRequest( "wrongPassword","Wrong Password");
+            var (usr, tk) = await GetUserDataAndToken(user);
+
+            //TODO: Start Service Response Refactor to catch the errors
+            return ServiceResponse<LoginResponseDTO>
+                .Success( new LoginResponseDTO() { Token = tk, User = usr }, null, new MessageResponse
+                {
+                    Key = "noPassword", 
+                    Value = "You've not Generated a Password Yet. Please Use Google Sign In to Login and Generate a Password.",
+                    IsSuccess = false
+                });
+        }
+        // Login with Password
+        if (!user.Password.IsNullOrEmpty())
+        {
+            
+            if (!PasswordHasher.VerifyPassword(loginPayload.Password, user.Password))
+            {
+                return ServiceResponse<LoginResponseDTO>.BadRequest( "wrongPassword","Wrong Password");
+            }
+            user.Password = PasswordHasher.HashPassword(user.Password);
+        } 
+        // Login with GooglePasscodeId
+        else if (!user.Password.IsNullOrEmpty()) {
+            //Verify GooglePasscodeId
+
+            if (!PasswordHasher.VerifyPassword(loginPayload.GooglePasscodeId, user.GooglePasscodeId))
+            {
+                return ServiceResponse<LoginResponseDTO>.BadRequest( "wrongPassword","Wrong Password");
+            }
+            user.GooglePasscodeId = PasswordHasher.HashPassword(user.GooglePasscodeId);
         }
 
         //Get User Data and Token from Helper
         var (data, token) = await GetUserDataAndToken(user);
 
-        return ServiceResponse<LoginResponseDTO>.Success(new LoginResponseDTO() { Token = token, User = data });
+        return ServiceResponse<LoginResponseDTO>.Success(new LoginResponseDTO() { Token = token, User = data }, null,
+            new MessageResponse
+        {
+            Key = "succesfully", 
+            Value = "Login Successfully",
+            IsSuccess = true
+        });
     }
 
     //Create user
@@ -68,11 +102,19 @@ public class AuthService: IAuthService
         //Create User Object
         var user = _mapper.Map<User>(signUpPayload);
         
-        //Hash Password
-        user.Password = PasswordHasher.HashPassword(signUpPayload.Password);
+        //Check if a it's a basic sign up
+        if (!signUpPayload.Password.IsNullOrEmpty())
+        {
+            //Hash Password
+            user.Password = PasswordHasher.HashPassword(signUpPayload.Password);
+        } else
+        {
+            //Hash GooglePasscodeId
+            user.GooglePasscodeId = PasswordHasher.HashPassword(signUpPayload.GooglePasscodeId);
+        }
         
         //Set First User Rank to Rookie
-        var rookieRank = await _dbContext.UserRanks.FirstOrDefaultAsync(r => r.Name == RankName.rookie);
+        var rookieRank = await _dbContext.Ranks.FirstOrDefaultAsync(r => r.Name == RankName.rookie);
         user.Rank = rookieRank;
         user.RankId = rookieRank.Id;
         //Set User Role

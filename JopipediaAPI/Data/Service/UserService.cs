@@ -97,7 +97,7 @@ public class UserService: IUserService
         updateUserPayload.Id = user.Id;
         // Map update payload to user
         _mapper.Map(updateUserPayload, user);
-        var userRank = await _context.UserRanks.FirstOrDefaultAsync(r => r.Id == updateUserPayload.RankId);
+        var userRank = await _context.Ranks.FirstOrDefaultAsync(r => r.Id == updateUserPayload.RankId);
         var userLevel = await _context.UserLevels.FirstOrDefaultAsync(l => l.Id == updateUserPayload.LevelId);
         
         // Update user roles, awards, rank level, and interests 

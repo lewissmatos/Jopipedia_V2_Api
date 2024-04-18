@@ -25,22 +25,60 @@ internal class QuizService: IQuizService
     
     async public Task<ServiceResponse<List<QuizDTO>>> GetAll(QuizFiltersDTO filters)
     {
-        var queryableResponse = _context.Quizzes.AsQueryable();
+        
+        var queryableResponse = _context.Quizzes
+            .Include( q => q.Topics)
+            .OrderByDescending( q => q.CreatedAt)
+            .GroupJoin(_context.Questions, // the source to join with
+                quiz => quiz.Id, // key selector for the outer type
+                question => question.QuizId, // key selector for the inner type
+                (quiz, questions) => new // result selector
+                {
+                    Quiz = quiz,
+                    QuestionCount = questions.Count()
+                })
+            .Select(q => new Quiz()
+            {
+                Id = q.Quiz.Id,
+                Title = q.Quiz.Title,
+                Description = q.Quiz.Description,
+                Color = q.Quiz.Color,
+                Emoji = q.Quiz.Emoji,
+                CreatedAt = q.Quiz.CreatedAt,
+                createdBy = _context.Users.FirstOrDefault(user => user.Id == q.Quiz.createdById),
+                Topics = _context.Topics.Where(top => q.Quiz.TopicIds.Contains(top.Id)).ToList(),
+                TopicIds = q.Quiz.TopicIds,
+                IsPrivate = q.Quiz.IsPrivate,
+                Passcode = q.Quiz.Passcode,
+                QuestionsCount = q.QuestionCount,
+                Difficulty = q.Quiz.Difficulty
+            })
+    .AsQueryable();
 
-        if (!filters.Title.IsNullOrEmpty())
+        if (!string.IsNullOrEmpty(filters.Search))
         {
-            queryableResponse = queryableResponse.Where(q => q.Title.Contains(filters.Title));
-        }
-        if (!filters.Description.IsNullOrEmpty())
-        {
-            queryableResponse = queryableResponse.Where(q => q.Description.Contains(filters.Description));
-        }
-        if (filters.TopicId != Guid.Empty && filters.TopicId != null)
-        {
-            queryableResponse = queryableResponse.Where(q => q.TopicId == filters.TopicId);
+            string searchLower = filters.Search.ToLower().Trim();
+
+            queryableResponse = queryableResponse
+                .Where(q => q.Title.ToLower().Trim().Contains(searchLower) 
+                            || q.Topics.Any(t => t.Title.ToLower().Trim().Contains(searchLower))
+                            || q.Description.ToLower().Trim().Contains(searchLower)
+                            );
         }
        
+        if (!filters.TopicIds.IsNullOrEmpty() )
+        {
+            queryableResponse = queryableResponse.Where(q => q.TopicIds.Any(topicId => filters.TopicIds.Contains(topicId)));
+        } if (!filters.Difficulties.IsNullOrEmpty() )
+        {
+            queryableResponse = queryableResponse.Where(q =>filters.Difficulties.Contains(q.Difficulty) );
+        }
         
+        if (filters.IsPrivate != null)
+        {
+            queryableResponse = queryableResponse.Where(q => q.IsPrivate == filters.IsPrivate);
+        }
+       
         var paginatedQuizzes = await PaginatedResponse<Quiz>
             .CreateAsync(queryableResponse, filters.Page, filters.Take);
         
@@ -52,29 +90,45 @@ internal class QuizService: IQuizService
     }
    
 
-    async public Task<ServiceResponse<QuizDTO>> GetById(Guid id)
+   async public Task<ServiceResponse<QuizDTO>> GetById(Guid id)
     {
-        var quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == id);
+        var quiz = await _context.Quizzes
+            .Where(q => q.Id == id)
+            .GroupJoin(_context.Questions, // the source to join with
+                quiz => quiz.Id, // key selector for the outer type
+                question => question.QuizId, // key selector for the inner type
+                (quiz, questions) => new // result selector
+                {
+                    Quiz = quiz,
+                    QuestionCount = questions.Count()
+                })
+            .FirstOrDefaultAsync();
+
         if (quiz == null)
         {
             return ServiceResponse<QuizDTO>.NotFound("notFound","Quiz not found");
         }
-        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(quiz));
+
+        var quizDto = _mapper.Map<QuizDTO>(quiz.Quiz);
+        quizDto.QuestionsCount = quiz.QuestionCount;
+
+        return ServiceResponse<QuizDTO>.Success(quizDto);
     }
 
    async public Task<ServiceResponse<QuizDTO>> Create(QuizDTO quiz)
     {
         var newQuiz = _mapper.Map<Quiz>(quiz);
         
-        var topic = await _context.Topics.FirstOrDefaultAsync(t => t.Id == quiz.TopicId);
-        
-        if (topic == null)
+        var topics = await _context.Topics.Where(t => quiz.TopicIds.Contains(t.Id)).ToListAsync();
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == quiz.createdById);
+        if (topics == null)
         {
-            return ServiceResponse<QuizDTO>.NotFound("notFound","Topic not found");
+            return ServiceResponse<QuizDTO>.NotFound("notFound","Topics not found");
         }
         
-        newQuiz.Topic = topic;
+        newQuiz.createdBy = _mapper.Map<User>(user);
         _mapper.Map(quiz, newQuiz);
+        newQuiz.Topics = topics;
         await _context.Quizzes.AddAsync(newQuiz);
         await _context.SaveChangesAsync();
         return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(newQuiz));

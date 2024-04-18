@@ -23,7 +23,7 @@ public class AppMappingProfile: Profile
             CreateMap<User, UpdateUserPayloadDTO>().ReverseMap();
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<UserRole, UserRoleDTO>().ReverseMap();
-            CreateMap<UserRank, UserRankDTO>().ReverseMap();
+            CreateMap<Rank, RankDTO>().ReverseMap();
             CreateMap<UserLevel, UserLevelDTO>().ReverseMap();
             CreateMap<Award, AwardDTO>().ReverseMap();
             CreateMap<Topic, TopicDTO>().ReverseMap();

@@ -12,7 +12,7 @@ public class UpdateUserPayloadDTO
     public string? Name { get; set; }   
     public List<UserRoleDTO>? Roles { get; set; }
     public List<Guid>? RoleIds { get; set; }
-    public UserRankDTO? Rank { get; set; }
+    public RankDTO? Rank { get; set; }
     public Guid? RankId { get; set; }
     public UserLevelDTO? Level { get; set; }
     public Guid? LevelId { get; set; }

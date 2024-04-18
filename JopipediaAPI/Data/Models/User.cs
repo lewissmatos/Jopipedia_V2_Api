@@ -15,6 +15,10 @@ public class User: BaseModel
     [MaxLength(100)]
     public string Email { get; set; }
     public string? Password { get; set; }
+    
+    public string? ProfilePicture { get; set; }
+    
+    public string? GooglePasscodeId { get; set; }
     public double RankingValue { get; set; } = 1.0;
     public UserLevel? Level { get; set; }
     public Guid? LevelId { get; set; }
@@ -22,8 +26,10 @@ public class User: BaseModel
     public List<Guid>? FollowerIds { get; set; }
     public List<UserRole>? Roles { get; set; }
     public List<Guid>? RoleIds { get; set; }
-    public UserRank? Rank { get; set; }
+    public Rank? Rank { get; set; }
     public Guid? RankId { get; set; }
     public List<Award>? Awards { get; set; }
     public List<Topic>? Interests { get; set; }
+    
+    public bool IsVerified { get; set; } = false;
 }

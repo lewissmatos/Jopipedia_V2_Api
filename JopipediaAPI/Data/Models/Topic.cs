@@ -9,5 +9,5 @@ public class Topic: BaseModel
     public String? Description { get; set; }
     public List<Quiz>? Quizzes { get; set; }
     [NotMapped]
-    public int? QuizCount { get; set; }
+    public int? QuizzesCount { get; set; }
 }

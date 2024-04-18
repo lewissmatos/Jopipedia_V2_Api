@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace JopipediaAPI.Data.Model;
 
 public class BaseModel

@@ -46,7 +46,7 @@ builder.Services.AddSingleton(mapper);
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IUserRoleService, UserRoleService>();
-    builder.Services.AddScoped<IUserRankService, UserRankService>();
+    builder.Services.AddScoped<IRankService, RankService>();
     builder.Services.AddScoped<ITopicService, TopicService>();
     builder.Services.AddScoped<IQuizService, QuizService>();
     builder.Services.AddScoped<IQuestionService, QuestionService>();

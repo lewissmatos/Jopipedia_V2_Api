@@ -28,15 +28,14 @@ internal class TopicService: ITopicService
     {
 
         var queryableResponse = _context.Topics
-            .OrderByDescending( t => t.Title)
-            .Include( t => t.Quizzes)
+            .OrderBy( t => t.Title)
             .Select( t => new Topic()
             {
                 Id =  t.Id,
                 Title = t.Title,
                 Description = t.Description,
                 Quizzes = t.Quizzes,
-                QuizCount = t.Quizzes.Count
+                QuizzesCount = t.Quizzes.Count
             })
             .AsQueryable();
 
@@ -50,12 +49,14 @@ internal class TopicService: ITopicService
 
     async public Task<ServiceResponse<TopicDTO>> GetById(Guid id)
     {
-        var topic = await  _context.Topics.FirstOrDefaultAsync(t => t.Id == id);
-        var QuizCount = _context.Quizzes.Where(q => q.Topic.Id == id).Count();
+        var topic = await  _context.Topics.
+            Include(t => t.Quizzes)
+            .FirstOrDefaultAsync(t => t.Id == id);
+        // var QuizCount = _context.Quizzes.Where(q => q.TopicIds.Contains(id)).Count();
 
         var data = _mapper.Map<TopicDTO>(topic);
-        data.QuizCount = QuizCount;
-        return ServiceResponse<TopicDTO>.Success();
+        data.QuizzesCount = topic.Quizzes.Count();
+        return ServiceResponse<TopicDTO>.Success(data);
     }
 
     async public Task<ServiceResponse<TopicDTO>> Create(TopicDTO topicDTO)

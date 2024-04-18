@@ -2,8 +2,10 @@ namespace JopipediaAPI.Data.Framework.Helpers;
 
 public class MessageResponse
 {
-    public string Key { get; set; }
-    public string Value { get; set; }
+    public string Key { get; set; } = "successfully";
+
+    public bool IsSuccess { get; set; } = true;
+    public string Value { get; set; } = "Successfully";
 }
 public class MetaResponse
 {
@@ -38,10 +40,11 @@ public class ServiceResponse<T>
         Meta = meta;
     }
     
-    public static ServiceResponse<T> Success(T? data = default, MetaResponse meta = default)
+    public static ServiceResponse<T> Success(T? data = default, MetaResponse meta = default, MessageResponse message = default)
     {
-        return new ServiceResponse<T>(true, false, false, new MessageResponse { Key = "executedSuccessfully", Value = "Executed Successfully" }, data, meta);
+        return new ServiceResponse<T>(true, false, false, message, data, meta);
     }
+   
     public static ServiceResponse<T> NotFound( string key, string message)
     {
         return new ServiceResponse<T>(false, true, false, new MessageResponse { Key = key, Value = message }, default);

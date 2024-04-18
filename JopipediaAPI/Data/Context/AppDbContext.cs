@@ -17,7 +17,7 @@ public class AppDbContext: DbContext
 
     public DbSet<UserLevel> UserLevels { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<UserRank> UserRanks { get; set; }
+    public DbSet<Rank> Ranks { get; set; }
     public DbSet<StopGame> StopGames { get; set; }
     public DbSet<StopGameRound> StopGameRounds { get; set; }
     public DbSet<StopGamePlayer> StopGamePlayers { get; set; }
@@ -38,12 +38,13 @@ public class AppDbContext: DbContext
         var physics = new Topic { Id = new  Guid("9869f417-39c3-449c-8250-1aefe0a7444b"), Title = "Physics", Description = "Physics Quizzes", Status = true };
         var sports = new Topic { Id = new  Guid("ed240c36-6781-4db9-9cd0-514f92d2594e"), Title = "Sports", Description = "Sports Quizzes", Status = true };
    
-        var rookie = new UserRank { Id = new  Guid("be247d3a-d360-48e8-965d-6d2179a0020c"), Name = RankName.rookie };
-        var beginner = new UserRank { Id  = new Guid("61ffef2e-5dbe-4d5d-80c9-ca3081fd821f"), Name = RankName.beginner };
-        var intermediate = new UserRank { Id  = new Guid("486771e2-cd07-4892-a35f-996e2731bd20"), Name = RankName.intermediate };
-        var advanced = new UserRank { Id  = new Guid("04484529-d942-4b8e-a07e-b74842c88925"), Name = RankName.advanced };
-        var expert = new UserRank { Id = new  Guid("f0ba3200-f315-4b33-afa3-cfdf3db43e00"), Name = RankName.expert };
-        var legend = new UserRank { Id = new  Guid("2a03d922-eb06-4354-9ff7-be091fdc5b13"), Name = RankName.legend };
+       
+        var rookie = new Rank { Id = new  Guid("be247d3a-d360-48e8-965d-6d2179a0020c"), Name = RankName.rookie, Index = 1, TopPoints = 500};
+        var beginner = new Rank { Id  = new Guid("61ffef2e-5dbe-4d5d-80c9-ca3081fd821f"), Name = RankName.beginner, Index = 2, TopPoints = 1500};
+        var intermediate = new Rank { Id  = new Guid("486771e2-cd07-4892-a35f-996e2731bd20"), Name = RankName.intermediate, Index = 3, TopPoints = 3000};
+        var advanced = new Rank { Id  = new Guid("04484529-d942-4b8e-a07e-b74842c88925"), Name = RankName.advanced, Index = 4, TopPoints = 5000};
+        var expert = new Rank { Id = new  Guid("f0ba3200-f315-4b33-afa3-cfdf3db43e00"), Name = RankName.expert, Index = 5, TopPoints = 10000};
+        var legend = new Rank { Id = new  Guid("2a03d922-eb06-4354-9ff7-be091fdc5b13"), Name = RankName.legend, Index = 6, TopPoints = null};
    
         var adminRole = new UserRole { Id = new Guid("5b11963e-6248-4b81-ac6d-402f0ebee3d8"), Name = "admin", Description = "Can Create Topics, Disable Users and Create Events"};
         var commonRole = new UserRole { Id = new Guid("61ff516d-a1c8-44b8-b5b5-cca0853fb28d"), Name = "common", Description = "Can Play Quizzes and Earn EXP, Can Play the Stop Game"};
@@ -51,11 +52,13 @@ public class AppDbContext: DbContext
         //Build
         modelBuilder.Entity<Answer>().HasQueryFilter(e => e.Status == true);
         modelBuilder.Entity<Award>().HasQueryFilter(e => e.Status == true);
+        
         modelBuilder.Entity<Question>().HasQueryFilter(e => e.Status == true);
         modelBuilder.Entity<Quiz>().HasQueryFilter(e => e.Status == true);
-        modelBuilder.Entity<Score>().HasQueryFilter(e => e.Status == true);
+        modelBuilder.Entity<Score>()
+            .HasQueryFilter(e => e.Status == true);
         modelBuilder.Entity<UserLevel>().HasQueryFilter(e => e.Status == true);
-        modelBuilder.Entity<UserRank>()
+        modelBuilder.Entity<Rank>()
             .HasQueryFilter(e => e.Status == true)
             .HasData(rookie, beginner, intermediate, advanced, expert, legend);
 
@@ -70,8 +73,5 @@ public class AppDbContext: DbContext
         modelBuilder.Entity<StopGamePlayer>().HasQueryFilter(e => e.Status == true);
         modelBuilder.Entity<StopGameAnswer>().HasQueryFilter(e => e.Status == true);
 
-        
-            
-        
     }
 }

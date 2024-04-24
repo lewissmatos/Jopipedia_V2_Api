@@ -45,7 +45,7 @@ internal class QuizService: IQuizService
                 Color = q.Quiz.Color,
                 Emoji = q.Quiz.Emoji,
                 CreatedAt = q.Quiz.CreatedAt,
-                createdBy = _context.Users.FirstOrDefault(user => user.Id == q.Quiz.createdById),
+                CreatedBy = _context.Users.FirstOrDefault(user => user.Id == q.Quiz.CreatedById),
                 Topics = _context.Topics.Where(top => q.Quiz.TopicIds.Contains(top.Id)).ToList(),
                 TopicIds = q.Quiz.TopicIds,
                 IsPrivate = q.Quiz.IsPrivate,
@@ -78,6 +78,10 @@ internal class QuizService: IQuizService
         {
             queryableResponse = queryableResponse.Where(q => q.IsPrivate == filters.IsPrivate);
         }
+        if (filters.CreatedById != null)
+        {
+            queryableResponse = queryableResponse.Where(q => q.CreatedBy.Id == filters.CreatedById);
+        }
        
         var paginatedQuizzes = await PaginatedResponse<Quiz>
             .CreateAsync(queryableResponse, filters.Page, filters.Take);
@@ -85,7 +89,7 @@ internal class QuizService: IQuizService
         var data = _mapper.Map<List<QuizDTO>>(paginatedQuizzes.Data);
         
         return ServiceResponse<List<QuizDTO>>
-            .Success(data, paginatedQuizzes.Meta);
+            .Success(data, new MessageResponse(){IsSuccess = true}, paginatedQuizzes.Meta);
         
     }
    
@@ -106,13 +110,14 @@ internal class QuizService: IQuizService
 
         if (quiz == null)
         {
-            return ServiceResponse<QuizDTO>.NotFound("notFound","Quiz not found");
+            return ServiceResponse<QuizDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Quiz not found" });
         }
 
         var quizDto = _mapper.Map<QuizDTO>(quiz.Quiz);
         quizDto.QuestionsCount = quiz.QuestionCount;
 
-        return ServiceResponse<QuizDTO>.Success(quizDto);
+        return ServiceResponse<QuizDTO>.Success(quizDto, new MessageResponse(){IsSuccess = true});
     }
 
    async public Task<ServiceResponse<QuizDTO>> Create(QuizDTO quiz)
@@ -120,19 +125,20 @@ internal class QuizService: IQuizService
         var newQuiz = _mapper.Map<Quiz>(quiz);
         
         var topics = await _context.Topics.Where(t => quiz.TopicIds.Contains(t.Id)).ToListAsync();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == quiz.createdById);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == quiz.CreatedById);
         if (topics == null)
         {
-            return ServiceResponse<QuizDTO>.NotFound("notFound","Topics not found");
+            return ServiceResponse<QuizDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Topics not found" });
         }
         
-        newQuiz.createdBy = _mapper.Map<User>(user);
+        newQuiz.CreatedBy = _mapper.Map<User>(user);
         _mapper.Map(quiz, newQuiz);
         newQuiz.Topics = topics;
         await _context.Quizzes.AddAsync(newQuiz);
         await _context.SaveChangesAsync();
-        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(newQuiz));
-        
+        return ServiceResponse<QuizDTO>
+                .Success(_mapper.Map<QuizDTO>(newQuiz), new MessageResponse() { Key = "createdSuccessfully", IsSuccess = true, Value = "Created Successfully" });
     }
 
     async public Task<ServiceResponse<QuizDTO>> Update(Guid id, QuizDTO quiz)
@@ -140,14 +146,15 @@ internal class QuizService: IQuizService
         var foundQuiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == id);
         if (foundQuiz == null)
         {
-            return ServiceResponse<QuizDTO>.NotFound("notFound","Quiz not found");
+            return ServiceResponse<QuizDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Quiz not found" });
         }
         quiz.Id = id;
         _mapper.Map(quiz, foundQuiz);
         _context.Quizzes.Update(foundQuiz);
 
         await _context.SaveChangesAsync();
-        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(foundQuiz));
+        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(foundQuiz), new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<QuizDTO>> Delete(Guid id)
@@ -155,11 +162,13 @@ internal class QuizService: IQuizService
         var quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == id);
         if (quiz == null)
         {
-            return ServiceResponse<QuizDTO>.NotFound("notFound","Quiz not found");
+            return ServiceResponse<QuizDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Quiz not found" });
         }
         _context.Quizzes.Remove(quiz);
         await _context.SaveChangesAsync();
-        return ServiceResponse<QuizDTO>.Success(_mapper.Map<QuizDTO>(quiz));
+        return ServiceResponse<QuizDTO>
+                .Success(null, new MessageResponse() { Key = "deletedSuccessfully", IsSuccess = true, Value = "Deleted Successfully" });
         
     }
 }

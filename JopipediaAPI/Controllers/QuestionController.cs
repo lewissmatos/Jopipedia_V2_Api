@@ -60,6 +60,13 @@ namespace JopipediaAPI.Controllers
             return await ValidateResponse.Validate(this, response);
         }
         
+        
+        [HttpPost("save-questions-and-answers")]
+        public async Task<IActionResult> SaveQuestionsAndAnswers([FromBody] List<QuestionDTO> questionsAndAnswers)
+        {
+            var response = await _questionService.SaveQuestionsAndAnswers(questionsAndAnswers);
+            return await ValidateResponse.Validate(this, response);
+        }
     }
 }
 

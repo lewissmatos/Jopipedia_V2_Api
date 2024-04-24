@@ -16,4 +16,8 @@ public class Question: BaseModel
     public Guid? QuizId { get; set; }
     public double? Value { get; set; } = 1;
     public string? Type { get; set; } = QuestionType.unique;
+
+    public virtual List<Answer>? Answers { get; set; }
+    
+    public int Index { get; set; }
 }

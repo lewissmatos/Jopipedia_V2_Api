@@ -11,4 +11,6 @@ public interface IQuestionService
     Task<ServiceResponse<QuestionDTO>> Create(QuestionDTO question);
     Task<ServiceResponse<QuestionDTO>> Update(Guid id, QuestionDTO question);
     Task<ServiceResponse<QuestionDTO>> Delete(Guid id);
+    
+    Task<ServiceResponse<List<QuestionDTO>>> SaveQuestionsAndAnswers(List<QuestionDTO> questions);
 }

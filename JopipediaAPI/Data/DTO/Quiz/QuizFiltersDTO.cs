@@ -9,4 +9,6 @@ public class QuizFiltersDTO: PaginationParamsDTO
     
     public List<string>? Difficulties { get; set; }
     public List<Guid>? TopicIds { get; set; }
+    
+    public Guid? CreatedById { get; set; }
 }

@@ -44,7 +44,7 @@ public class AnswerService: IAnswerService
         var data = _mapper.Map<List<AnswerDTO>>(paginatedAnswers.Data);
         
         return ServiceResponse<List<AnswerDTO>>
-            .Success(data, paginatedAnswers.Meta);
+            .Success(data, new MessageResponse(){Key="successfully", IsSuccess = true, Value = "Answers fetched successfully"}, paginatedAnswers.Meta);
     }
 
     async public Task<ServiceResponse<AnswerDTO>> GetById(Guid id)
@@ -52,9 +52,12 @@ public class AnswerService: IAnswerService
         var answer = await _context.Answers.FirstOrDefaultAsync(x => x.Id == id);
         if (answer == null)
         {
-            return ServiceResponse<AnswerDTO>.NotFound("notFound","Answer not found");
+            return ServiceResponse<AnswerDTO>
+                    .Success(null,
+                        new MessageResponse() { Key = "error", IsSuccess = false, Value = "Answer not found" });
         }
-        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(answer));
+        return ServiceResponse<AnswerDTO>
+                .Success(_mapper.Map<AnswerDTO>(answer), new MessageResponse(){Key="successfully", Value = "Answers fetched successfully"});
     }
 
    async public Task<ServiceResponse<AnswerDTO>> Create(AnswerDTO answer)
@@ -65,13 +68,14 @@ public class AnswerService: IAnswerService
         
         if (question == null)
         {
-            return ServiceResponse<AnswerDTO>.NotFound("notFound","Question not found");
+            return ServiceResponse<AnswerDTO>.Success(null,
+                new MessageResponse() { Key = "error", IsSuccess = false, Value = "Question not found" });
         }
         newAnswer.Question = question;
         _mapper.Map(answer, newAnswer);
         await _context.Answers.AddAsync(newAnswer);
         await _context.SaveChangesAsync();
-        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(newAnswer));
+        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(newAnswer),new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<AnswerDTO>> Update(Guid id, AnswerDTO answer)
@@ -79,12 +83,14 @@ public class AnswerService: IAnswerService
         var foundAnswer = await _context.Answers.FirstOrDefaultAsync(x => x.Id == id);
         if (foundAnswer == null)
         {
-            return ServiceResponse<AnswerDTO>.NotFound("notFound","Answer not found");
+            return ServiceResponse<AnswerDTO>
+            .Success(null,
+                new MessageResponse() { Key = "error",IsSuccess = false, Value = "Answer not found" });
         }
         _mapper.Map(answer, foundAnswer);
         _context.Answers.Update(foundAnswer);
         await _context.SaveChangesAsync();
-        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(foundAnswer));
+        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(foundAnswer), new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<AnswerDTO>> Delete(Guid id)
@@ -92,10 +98,12 @@ public class AnswerService: IAnswerService
         var foundAnswer = await _context.Answers.FirstOrDefaultAsync(x => x.Id == id);
         if (foundAnswer == null)
         {
-            return ServiceResponse<AnswerDTO>.NotFound("notFound","Answer not found");
+            return ServiceResponse<AnswerDTO>
+                .Success(null,
+                    new MessageResponse() { Key = "error", IsSuccess = false, Value = "Answer not found" });
         }
         _context.Answers.Remove(foundAnswer);
         await _context.SaveChangesAsync();
-        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(foundAnswer));
+        return ServiceResponse<AnswerDTO>.Success(_mapper.Map<AnswerDTO>(foundAnswer), new MessageResponse(){IsSuccess = true});
     }
 }

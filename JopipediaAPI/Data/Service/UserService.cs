@@ -5,6 +5,7 @@ using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
 using Microsoft.EntityFrameworkCore;
+using tsprojectsAPI.Data.Framework.Helpers;
 
 namespace JopipediaAPI.Data.Service;
 
@@ -37,14 +38,22 @@ public class UserService: IUserService
             .CreateAsync(queryableResponse, filters.Page, filters.Take);
         
         var data  = _mapper.Map<List<UserDTO>>(paginatedUsers.Data);
-        return ServiceResponse<List<UserDTO>>.Success(data, paginatedUsers.Meta);
+        return ServiceResponse<List<UserDTO>>.Success(data, new MessageResponse(){IsSuccess = true}, paginatedUsers.Meta);
     }
 
     async public Task<ServiceResponse<UserDTO>> GetById(Guid id)
     {
         //Get user by id
         var user = await  _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
+        
+        if (user == null)
+        {
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
+        }
+        user.HasPassword = user.CheckPassword();
+        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user), 
+            new MessageResponse() { Key = "succcess", IsSuccess = true, Value = "User found successfully" });
     }
 
     async public Task<ServiceResponse<UserDTO>> Update(Guid id, UpdateUserPayloadDTO updateUserPayload)
@@ -52,13 +61,29 @@ public class UserService: IUserService
         // Get user to update
         var user = await _context.Users
             .Include(u => u.Roles)
-            .Include(u => u.Awards)
             .Include(u => u.Rank)
             .Include(u => u.Level)
+            .Include(u => u.Awards)
+            .Include(u => u.Interests)
             .FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
         {
-            return ServiceResponse<UserDTO>.NotFound("notFound", "User not found");
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "found not found" });
+        }
+        
+        if (await IsEmailInUse(updateUserPayload.Email, user.Id))
+        {
+            return ServiceResponse<UserDTO>
+                .Success(null,
+                    new MessageResponse() { Key = "emailInUse", IsSuccess = false, Value = "Email is already in use" });
+        }
+        //Check if Username is already in use
+        if (await IsUserNameInUser(updateUserPayload.Username, user.Id))
+        {
+            return ServiceResponse<UserDTO>
+                .Success(null,
+                    new MessageResponse() { Key = "usernameInUse", IsSuccess = false, Value = "Username is already in use" });
         }
         
         
@@ -106,11 +131,13 @@ public class UserService: IUserService
         user.Roles = userRoles;
         user.Level = userLevel;
         user.Interests = userInterests;
+        user.HasPassword = user.CheckPassword();
 
         // Save changes
         await _context.SaveChangesAsync();
 
-        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
+        return ServiceResponse<UserDTO>
+                .Success(_mapper.Map<UserDTO>(user), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
     }
     
     async public Task<ServiceResponse<UserDTO>> Disable(Guid id)
@@ -119,13 +146,15 @@ public class UserService: IUserService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
         {
-            return ServiceResponse<UserDTO>.NotFound("notFound", "User not found");
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
         }
         // Disable user
         user.Status = false;
         //Save changes
         await _context.SaveChangesAsync();
-        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
+        return ServiceResponse<UserDTO>
+                .Success(_mapper.Map<UserDTO>(user), new MessageResponse() { Key = "disabledSuccessfully", IsSuccess = true, Value = "Disabled Successfully" });
     }
 
     async public Task<ServiceResponse<UserDTO>> Delete(Guid id)
@@ -133,14 +162,15 @@ public class UserService: IUserService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
         {
-            return ServiceResponse<UserDTO>.NotFound("notFound", "User not found");
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
         }
         // Delete user
         _context.Users.Remove(user);
         // Save changes
         await _context.SaveChangesAsync();
-        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
-        
+        return ServiceResponse<UserDTO>
+                .Success(_mapper.Map<UserDTO>(user), new MessageResponse() { Key = "deletedSuccessfully", IsSuccess = true, Value = "Deleted Successfully" });
     }
 
     async public Task<ServiceResponse<UserDTO>> UpdateUserLevel(Guid id, double value)
@@ -150,7 +180,8 @@ public class UserService: IUserService
             .FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
         {
-            return ServiceResponse<UserDTO>.NotFound("notFound", "User not found");
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
         }
         // Update user level
         double currentUserLevelPercentage = user.Level.Percentage;
@@ -168,7 +199,8 @@ public class UserService: IUserService
         }
         await _context.SaveChangesAsync();
 
-        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
+        return ServiceResponse<UserDTO>
+                .Success(_mapper.Map<UserDTO>(user), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
 
     }
     
@@ -177,11 +209,13 @@ public class UserService: IUserService
        
         var user = await _context.Users
             .Include(u => u.Rank)
+            
             .FirstOrDefaultAsync(u => u.Id == id);
         
         if (user == null)
         {
-            return ServiceResponse<UserDTO>.NotFound("notFound", "User not found");
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
         }
         
         // Update user ranking value
@@ -226,6 +260,103 @@ public class UserService: IUserService
         
         await _context.SaveChangesAsync();
         
-        return ServiceResponse<UserDTO>.Success(_mapper.Map<UserDTO>(user));
+        return ServiceResponse<UserDTO>
+                .Success(_mapper.Map<UserDTO>(user), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
+    }
+
+    public async Task<ServiceResponse<UserDTO>> UpdatePassword(Guid userId, UpdatePasswordDTO updatePasswordDTO)
+    {
+        var user = await _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Rank)
+            .Include(u => u.Level)
+            .Include(u => u.Awards)
+            .Include(u => u.Interests)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
+        }
+        
+        // Check if current password is correct
+        if (!PasswordHasher.VerifyPassword(updatePasswordDTO.CurrentPassword, user.Password))
+        {
+            return ServiceResponse<UserDTO>
+                    .Success(null, new MessageResponse() { Key = "incorrectPassword", IsSuccess = false, Value = "Incorrect Current Password" });
+        }
+        
+        // Hash new password
+        user.Password = PasswordHasher.HashPassword(updatePasswordDTO.NewPassword);
+        user.HasPassword = user.CheckPassword();
+        var data = _mapper.Map<UserDTO>(user);
+        await _context.SaveChangesAsync();
+        return ServiceResponse<UserDTO>
+                .Success(data, new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
+
+    }
+
+    public async Task<ServiceResponse<UserDTO>> GeneratePassword(Guid userId, string password)
+    {
+        var user = await _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Rank)
+            .Include(u => u.Level)
+            .Include(u => u.Awards)
+            .Include(u => u.Interests)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return ServiceResponse<UserDTO>
+                .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
+        }
+        
+        // Hash  password
+        user.Password = PasswordHasher.HashPassword(password);
+        user.HasPassword = user.CheckPassword();
+        
+        var data = _mapper.Map<UserDTO>(user);
+        await _context.SaveChangesAsync();
+
+        return ServiceResponse<UserDTO>
+                .Success(data, new MessageResponse() { Key = "generatedSuccessfully", IsSuccess = true, Value = "Generated Successfully" });
+        
+    }
+
+    public async Task<ServiceResponse<UserDTO>> UpdateMyIntrerests(Guid userId, UpdateUserInterestsDTO interestDTO)
+    {
+        var user = await _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Rank)
+            .Include(u => u.Level)
+            .Include(u => u.Awards)
+            .Include(u => u.Interests)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return ServiceResponse<UserDTO>
+                .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User not found" });
+        }
+        
+        var interests = await _context.Topics.Where(t => interestDTO.InterestIds.Contains(t.Id)).ToListAsync();
+        user.Interests = interests;
+        user.HasPassword = user.CheckPassword();
+        await _context.SaveChangesAsync();
+        return ServiceResponse<UserDTO>
+                .Success(_mapper.Map<UserDTO>(user), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
+    }
+
+    private async Task<bool> IsEmailInUse(string email, Guid userId)
+    {
+        return await _context.Users.AnyAsync(x => x.Email == email && x.Id != userId);
+    }
+    
+    //Check if Username is already in use
+    private async Task<bool> IsUserNameInUser(string userName, Guid userId)
+    {
+        return await _context.Users.AnyAsync(x => x.Username == userName&& x.Id != userId);
     }
 }

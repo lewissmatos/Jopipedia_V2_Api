@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace JopipediaAPI.Data.Model;
@@ -32,4 +33,11 @@ public class User: BaseModel
     public List<Topic>? Interests { get; set; }
     
     public bool IsVerified { get; set; } = false;
+    
+    [NotMapped]
+    public bool HasPassword { get; set; }
+    public bool CheckPassword()
+    {
+        return !string.IsNullOrEmpty(Password);
+    }
 }

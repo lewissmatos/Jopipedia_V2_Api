@@ -78,6 +78,35 @@ namespace JopipediaAPI.Controllers
   
             return await ValidateResponse.Validate(this, response);
         }
+        
+        [HttpPut("Update-Password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDTO updatePasswordDTO)
+        {
+            Guid userId = (Guid)AuthManager.GetCurrentUser(HttpContext).Id;
+
+            var response = await _userService.UpdatePassword(userId, updatePasswordDTO);
+          
+            return await ValidateResponse.Validate(this, response);
+        }
+        
+        [HttpPut("Generate-Password")]
+        public async Task<IActionResult> GeneratePassword([FromBody] GeneratePasswordDTO generatePasswordDTO)
+        {
+            
+            Guid userId = (Guid)AuthManager.GetCurrentUser(HttpContext).Id;
+            var response = await _userService.GeneratePassword(userId, generatePasswordDTO.Password);
+          
+            return await ValidateResponse.Validate(this, response);
+        }
+        
+        [HttpPut("Update-Interests")]
+        public async Task<IActionResult> UpdateMyIntrerests([FromBody] UpdateUserInterestsDTO userInterestsDTO)
+        {
+            Guid userId = (Guid)AuthManager.GetCurrentUser(HttpContext).Id;
+            var response = await _userService.UpdateMyIntrerests(userId, userInterestsDTO);
+          
+            return await ValidateResponse.Validate(this, response);
+        }
     }
 }
 

@@ -48,7 +48,7 @@ namespace JopipediaAPI.Controllers
         {
             
             Guid userId = (Guid)AuthManager.GetCurrentUser(HttpContext).Id;
-            quiz.createdById = userId;
+            quiz.CreatedById = userId;
             var response = await _quizService.Create(quiz);
             
             return await ValidateResponse.Validate(this, response);

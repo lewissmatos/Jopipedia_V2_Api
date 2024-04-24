@@ -32,7 +32,7 @@ public class UserRoleService : IUserRoleService
         var data = paginatedUserRoles.Data;
         //Return paginated user roles
         return ServiceResponse<List<UserRoleDTO>>
-            .Success(_mapper.Map<List<UserRoleDTO>>(data), paginatedUserRoles.Meta);
+            .Success(_mapper.Map<List<UserRoleDTO>>(data), new MessageResponse(){IsSuccess = true}, paginatedUserRoles.Meta);
     }
 
     async public Task<ServiceResponse<UserRoleDTO>> GetById(Guid id)
@@ -42,10 +42,11 @@ public class UserRoleService : IUserRoleService
         //Check if user role is not found
         if (userRole == null)
         {
-            return ServiceResponse<UserRoleDTO>.NotFound("notFound","User Role not found");
+            return ServiceResponse<UserRoleDTO>
+                .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User Role  found not found" });
         }
 
-        return ServiceResponse<UserRoleDTO>.Success(_mapper.Map<UserRoleDTO>(userRole));
+        return ServiceResponse<UserRoleDTO>.Success(_mapper.Map<UserRoleDTO>(userRole), new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<UserRoleDTO>> Create(UserRoleDTO userRole)
@@ -59,7 +60,8 @@ public class UserRoleService : IUserRoleService
         //Map the new user role to DTO
         var data = _mapper.Map<UserRoleDTO>(newUserRole);
         //Return the new user role DTO
-        return ServiceResponse<UserRoleDTO>.Success(data);
+        return ServiceResponse<UserRoleDTO>
+                .Success(_mapper.Map<UserRoleDTO>(data), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Created Successfully" });
     }
 
     async public Task<ServiceResponse<UserRoleDTO>> Update(Guid id, UserRoleDTO userRole)
@@ -69,7 +71,8 @@ public class UserRoleService : IUserRoleService
         //Check if user role is not found
         if (userRoleToUpdate == null)
         {
-            return ServiceResponse<UserRoleDTO>.NotFound("notFound","User Role not found");
+            return ServiceResponse<UserRoleDTO>
+                .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "User Role not found" });
         }
         userRole.Id = id;
         //Map the updated user role to the user role model
@@ -79,6 +82,7 @@ public class UserRoleService : IUserRoleService
         //Map the updated user role to DTO
         var data = _mapper.Map<UserRoleDTO>(userRoleToUpdate);
         //Return the updated user role DTO
-        return ServiceResponse<UserRoleDTO>.Success(data);
+        return ServiceResponse<UserRoleDTO>
+                .Success(_mapper.Map<UserRoleDTO>(data), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
     }
 }

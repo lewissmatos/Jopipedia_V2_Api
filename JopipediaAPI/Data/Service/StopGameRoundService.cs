@@ -38,7 +38,7 @@ public class StopGameRoundService: IStopGameRoundService
         
         var data = _mapper.Map<List<StopGameRoundDTO>>(paginatedGameRounds.Data);
         
-        return ServiceResponse<List<StopGameRoundDTO>>.Success(data, paginatedGameRounds.Meta);
+        return ServiceResponse<List<StopGameRoundDTO>>.Success(data, new MessageResponse(){IsSuccess = true}, paginatedGameRounds.Meta);
     }
 
     async public Task<ServiceResponse<StopGameRoundDTO>> AddRound(AddStopGameRountDTO addStopGameRoundDto)
@@ -63,7 +63,7 @@ public class StopGameRoundService: IStopGameRoundService
         
         var data = _mapper.Map<StopGameRoundDTO>(round);
         await _context.SaveChangesAsync();
-        return ServiceResponse<StopGameRoundDTO>.Success(data);
+        return ServiceResponse<StopGameRoundDTO>.Success(data, new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<StopGameRoundDTO>> GetRound(Guid id)
@@ -74,11 +74,12 @@ public class StopGameRoundService: IStopGameRoundService
         
         if (round == null)
         {
-            return ServiceResponse<StopGameRoundDTO>.NotFound("notFound", "Round not found");
+            return ServiceResponse<StopGameRoundDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Round not found" });
         }
         
         var data = _mapper.Map<StopGameRoundDTO>(round);
-        return ServiceResponse<StopGameRoundDTO>.Success(data);
+        return ServiceResponse<StopGameRoundDTO>.Success(data, new MessageResponse(){IsSuccess = true});
     }
 
     async public  Task<ServiceResponse<List<StopGameRoundDTO>>> GetRoundsByStopGameId(Guid stopGameId)
@@ -93,6 +94,6 @@ public class StopGameRoundService: IStopGameRoundService
         
         var data = _mapper.Map<List<StopGameRoundDTO>>(paginatedGameRounds.Data);
         
-        return ServiceResponse<List<StopGameRoundDTO>>.Success(data, paginatedGameRounds.Meta);
+        return ServiceResponse<List<StopGameRoundDTO>>.Success(data, new MessageResponse(){IsSuccess = true}, paginatedGameRounds.Meta);
     }
 }

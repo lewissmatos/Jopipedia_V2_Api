@@ -1,3 +1,4 @@
+using JopipediaAPI.Data.DTO.Question;
 using JopipediaAPI.Data.DTO.Topic;
 using JopipediaAPI.Data.DTO.User;
 using JopipediaAPI.Data.Model;
@@ -15,9 +16,10 @@ public class QuizDTO: BaseModel
     public string? Passcode { get; set; }
     public List<Guid>? TopicIds { get; set; }
     public List<TopicDTO>? Topics { get; set; }
-    public UserDTO? createdBy { get; set; }
-    public Guid? createdById { get; set; }
+    public UserDTO? CreatedBy { get; set; }
+    public Guid? CreatedById { get; set; }
     public int? QuestionsCount { get; set; }
     
     public string Difficulty { get; set; }
+    public virtual List<QuestionDTO>? questions { get; set; }
 }

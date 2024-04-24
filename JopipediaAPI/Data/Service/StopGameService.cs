@@ -38,7 +38,7 @@ public class StopGameService : IStopGameService
 
         var data = _mapper.Map<List<StopGameDTO>>(paginatedStopGames.Data);
         
-        return ServiceResponse<List<StopGameDTO>>.Success(data, paginatedStopGames.Meta);
+        return ServiceResponse<List<StopGameDTO>>.Success(data, new MessageResponse(){IsSuccess = true}, paginatedStopGames.Meta);
     }
 
     async public Task<ServiceResponse<StopGameDTO>> GetById(Guid id)
@@ -47,12 +47,13 @@ public class StopGameService : IStopGameService
 
         if (stopGame == null)
         {
-            return ServiceResponse<StopGameDTO>.NotFound("notFound", "StopGame not found");
+            return ServiceResponse<StopGameDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "StopGame not found" });
         }
 
         var data = _mapper.Map<StopGameDTO>(stopGame);
 
-        return ServiceResponse<StopGameDTO>.Success(data);
+        return ServiceResponse<StopGameDTO>.Success(data, new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<StopGameDTO>> Create()
@@ -66,7 +67,9 @@ public class StopGameService : IStopGameService
         await _context.SaveChangesAsync();
         var data = _mapper.Map<StopGameDTO>(stopGameModel);
 
-        return ServiceResponse<StopGameDTO>.Success(data);
+        return ServiceResponse<StopGameDTO>
+                .Success(data, new MessageResponse() { Key = "createdSuccessfully", IsSuccess = true, Value = "Created Successfully" });
+        
     }
 
     async public Task<ServiceResponse<StopGameDTO>> Join(JoinStopGameDTO joinStopGame)
@@ -77,7 +80,8 @@ public class StopGameService : IStopGameService
 
         if (stopGame == null)
         {
-            return ServiceResponse<StopGameDTO>.NotFound("notFound", "StopGame not found");
+            return ServiceResponse<StopGameDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "StopGame not found" });
         }
         
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == joinStopGame.UserId);
@@ -89,7 +93,8 @@ public class StopGameService : IStopGameService
 
         var data = _mapper.Map<StopGameDTO>(stopGame);
         await _context.SaveChangesAsync();
-        return ServiceResponse<StopGameDTO>.Success(data);
+        return ServiceResponse<StopGameDTO>
+                .Success(data, new MessageResponse() { Key = "joinSuccessfully", IsSuccess = true, Value = "Joined Successfully" });
     }
 
     async public Task<ServiceResponse<StopGameDTO>> End(Guid gameId)
@@ -98,7 +103,8 @@ public class StopGameService : IStopGameService
 
         if (stopGame == null)
         {
-            return ServiceResponse<StopGameDTO>.NotFound("notFound", "StopGame not found");
+            return ServiceResponse<StopGameDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "StopGame not found" });
         }
         
         var players = await _context.StopGamePlayers
@@ -131,7 +137,8 @@ public class StopGameService : IStopGameService
         await _context.SaveChangesAsync();
         var data = _mapper.Map<StopGameDTO>(stopGame);
 
-        return ServiceResponse<StopGameDTO>.Success(data);
+        return ServiceResponse<StopGameDTO>
+                .Success(data, new MessageResponse() { Key = "endedSuccessfully", IsSuccess = true, Value = "Ended Successfully" });
     }
 
     

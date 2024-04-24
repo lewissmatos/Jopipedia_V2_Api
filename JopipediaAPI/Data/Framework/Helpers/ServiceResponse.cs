@@ -2,7 +2,7 @@ namespace JopipediaAPI.Data.Framework.Helpers;
 
 public class MessageResponse
 {
-    public string Key { get; set; } = "successfully";
+    public string Key { get; set; } = "success";
 
     public bool IsSuccess { get; set; } = true;
     public string Value { get; set; } = "Successfully";
@@ -40,7 +40,7 @@ public class ServiceResponse<T>
         Meta = meta;
     }
     
-    public static ServiceResponse<T> Success(T? data = default, MetaResponse meta = default, MessageResponse message = default)
+    public static ServiceResponse<T> Success(T? data = default, MessageResponse message = default, MetaResponse? meta = default)
     {
         return new ServiceResponse<T>(true, false, false, message, data, meta);
     }

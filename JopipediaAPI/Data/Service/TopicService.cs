@@ -44,7 +44,7 @@ internal class TopicService: ITopicService
         
         var data = _mapper.Map<List<TopicDTO>>(paginatedTopics.Data);
         
-        return ServiceResponse<List<TopicDTO>>.Success(data, paginatedTopics.Meta);
+        return ServiceResponse<List<TopicDTO>>.Success(data, new MessageResponse(){IsSuccess = true}, paginatedTopics.Meta);
     }
 
     async public Task<ServiceResponse<TopicDTO>> GetById(Guid id)
@@ -56,7 +56,7 @@ internal class TopicService: ITopicService
 
         var data = _mapper.Map<TopicDTO>(topic);
         data.QuizzesCount = topic.Quizzes.Count();
-        return ServiceResponse<TopicDTO>.Success(data);
+        return ServiceResponse<TopicDTO>.Success(data, new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<TopicDTO>> Create(TopicDTO topicDTO)
@@ -64,7 +64,8 @@ internal class TopicService: ITopicService
         var topic = _mapper.Map<Topic>(topicDTO);
         await _context.Topics.AddAsync(topic);
         await _context.SaveChangesAsync();
-        return ServiceResponse<TopicDTO>.Success(_mapper.Map<TopicDTO>(topic));
+        return ServiceResponse<TopicDTO>
+                .Success(_mapper.Map<TopicDTO>(topic), new MessageResponse() { Key = "createdSuccessfully", IsSuccess = true, Value = "Created Successfully" });
     }
 
     async public Task<ServiceResponse<TopicDTO>> Update(Guid id, TopicDTO topic)
@@ -73,21 +74,24 @@ internal class TopicService: ITopicService
         
         if (foundTopic == null)
         {
-            return ServiceResponse<TopicDTO>.NotFound("notFound", "Topic not found");
+            return ServiceResponse<TopicDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Topic not found" });
         }
         
         var titleExists = await _context.Topics.AnyAsync(t => t.Title == topic.Title && t.Id != id);
 
         if (titleExists)
         {
-            return ServiceResponse<TopicDTO>.BadRequest("badRequest", "Topic with the same title already exists");
+            return ServiceResponse<TopicDTO>
+                    .Success(null, new MessageResponse() { Key = "titleExists", IsSuccess = false, Value = "Topic with the same title already exists" });
         }
         topic.Id = id;
         _mapper.Map(topic, foundTopic);
         
         _context.Topics.Update(foundTopic);
         await _context.SaveChangesAsync();
-        return ServiceResponse<TopicDTO>.Success(_mapper.Map<TopicDTO>(foundTopic));
+        return ServiceResponse<TopicDTO>
+                .Success(_mapper.Map<TopicDTO>(foundTopic), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
     }
 
     async public Task<ServiceResponse<TopicDTO>> Delete(Guid id)
@@ -96,12 +100,14 @@ internal class TopicService: ITopicService
         
         if (foundTopic == null)
         {
-            return ServiceResponse<TopicDTO>.NotFound("notFound", "Topic not found");
+            return ServiceResponse<TopicDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Topic not found" });
         }
         
         _context.Topics.Remove(foundTopic);
         await _context.SaveChangesAsync();
-        return ServiceResponse<TopicDTO>.Success(_mapper.Map<TopicDTO>(foundTopic));
+        return ServiceResponse<TopicDTO>
+                .Success(_mapper.Map<TopicDTO>(foundTopic), new MessageResponse() { Key = "deletedSuccessfully", IsSuccess = true, Value = "Deleted Successfully" });
 
     }
 }

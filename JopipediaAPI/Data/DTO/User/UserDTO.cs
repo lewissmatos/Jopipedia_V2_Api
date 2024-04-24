@@ -25,7 +25,8 @@ public class UserDTO
     public Guid? RankId { get; set; }
     public List<AwardDTO>? Awards { get; set; }
     public List<Guid>? AwardIds { get; set; }
-    public List<TopicDTO> Interests { get; set; }
-    public List<Guid> InterestIds { get; set; }
+    public List<TopicDTO>? Interests { get; set; }
+    public List<Guid>? InterestIds { get; set; }
     public bool IsVerified { get; set; } = false;
+    public bool HasPassword { get; set; }
 }

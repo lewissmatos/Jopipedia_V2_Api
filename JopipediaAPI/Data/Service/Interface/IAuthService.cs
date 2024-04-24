@@ -9,5 +9,7 @@ namespace JopipediaAPI.Data.Service.Interface
     {
         Task<ServiceResponse<LoginResponseDTO>> Login(LoginPayloadDTO loginPayload);
         Task<ServiceResponse<UserDTO>> SignUp(SignUpPayloadDTO signUpPayload);
+        
+        Task<ServiceResponse<UserDTO>> AddGoogleAuthData(AddGoogleAuthDataDTO googleData);
     }
 }

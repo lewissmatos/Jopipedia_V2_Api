@@ -62,7 +62,7 @@ public class StopGameAnswerService: IStopGameAnswerService
             .Include(x => x.User)
             .Where(x => x.RoundId == roundId)
             .ToListAsync();
-        return ServiceResponse<List<StopGameAnswerDTO>>.Success(_mapper.Map<List<StopGameAnswerDTO>>(answers));
+        return ServiceResponse<List<StopGameAnswerDTO>>.Success(_mapper.Map<List<StopGameAnswerDTO>>(answers),new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<StopGameAnswerDTO>> Create(CreateStopGameAnswerDTO answer)
@@ -78,7 +78,8 @@ public class StopGameAnswerService: IStopGameAnswerService
         //Check if the Game is finished
         if (round.StopGame.IsFinished)
         {
-            return ServiceResponse<StopGameAnswerDTO>.BadRequest("gameFinished","The game is finished");
+            return ServiceResponse<StopGameAnswerDTO>
+                .Success(null, new MessageResponse() { Key = "gameFinished", IsSuccess = false, Value = "The game is finished" });
         }
         
         //Check if the user already joined the game
@@ -88,7 +89,9 @@ public class StopGameAnswerService: IStopGameAnswerService
             );
         if (!isJoinedToGame)
         {
-            return ServiceResponse<StopGameAnswerDTO>.BadRequest("notJoined","You haven't joined the game");
+            return ServiceResponse<StopGameAnswerDTO>
+                    .Success(null, new MessageResponse() { Key = "notJoined", IsSuccess = false, Value = "You haven't joined the game" });
+            
         }
         
         // Check if the answer has already been answered
@@ -121,7 +124,8 @@ public class StopGameAnswerService: IStopGameAnswerService
 
         await _context.StopGameAnswers.AddAsync(stopGameAnswer);
         await _context.SaveChangesAsync();
-        return ServiceResponse<StopGameAnswerDTO>.Success(_mapper.Map<StopGameAnswerDTO>(stopGameAnswer));
+        return ServiceResponse<StopGameAnswerDTO>.Success(_mapper.Map<StopGameAnswerDTO>(stopGameAnswer),
+            new MessageResponse() { Key = "createdSuccessfully", IsSuccess = true, Value = "Created Successfully" });
     }
     
     async public Task<ServiceResponse<dynamic>> CheckResult(StopGameCheckResultDTO stopGameResult)
@@ -129,17 +133,20 @@ public class StopGameAnswerService: IStopGameAnswerService
         
         if (stopGameResult.Category.IsNullOrEmpty() || stopGameResult.Word.IsNullOrEmpty())
         {
-            return ServiceResponse<dynamic>.BadRequest("badRequest", "Invalid input");
+            return ServiceResponse<dynamic>
+                    .Success(false, new MessageResponse() { Key = "badRequest", IsSuccess = false, Value = "Invalid input" });
         }
 
         if (!stopGameResult.Word.ToLower().Contains(stopGameResult.Letter.ToLower()))
         {
-            return ServiceResponse<dynamic>.Success(false);
+            return ServiceResponse<dynamic>
+                    .Success(false, new MessageResponse() { Key = "incorrectAnswer", IsSuccess = true, Value = "Incorrec Answer" });
         }
 
         var answer = await CheckAnswer(stopGameResult);
         
-        return ServiceResponse<dynamic>.Success(answer);
+        return ServiceResponse<dynamic>
+                .Success(answer);
     }
     
     async public Task<bool> CheckAnswer(StopGameCheckResultDTO stopGameResult)

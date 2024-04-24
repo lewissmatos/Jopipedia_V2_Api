@@ -22,10 +22,12 @@ public class Quiz: BaseModel
     public string? Passcode { get; set; }
     public List<Topic> Topics { get; set; }
     public List<Guid> TopicIds { get; set; }
-    public User? createdBy { get; set; }
-    public Guid? createdById { get; set; }
+    public User? CreatedBy { get; set; }
+    public Guid? CreatedById { get; set; }
     [NotMapped]
     public int? QuestionsCount { get; set; }
     public string Difficulty { get; set; }
+    
+    public virtual List<Question>? questions { get; set; }
 
 }

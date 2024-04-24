@@ -58,8 +58,7 @@ public class AwardService: IAwardService
         var data = _mapper.Map<List<AwardDTO>>(paginatedAwards.Data);
         
         return ServiceResponse<List<AwardDTO>>
-            .Success(data, paginatedAwards.Meta);
-        
+                .Success(data, new MessageResponse(){IsSuccess = true}, paginatedAwards.Meta);
     }
 
     async public Task<ServiceResponse<AwardDTO>> GetById(Guid id)
@@ -69,10 +68,12 @@ public class AwardService: IAwardService
             .FirstOrDefaultAsync(a => a.Id == id);
         if (award == null)
         {
-            return ServiceResponse<AwardDTO>.NotFound("notFound","Award not found");
+            return ServiceResponse<AwardDTO>
+                    .Success(null,
+                        new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Award not found" });
         }
         award.Id = id;
-        return ServiceResponse<AwardDTO>.Success(_mapper.Map<AwardDTO>(award));
+        return ServiceResponse<AwardDTO>.Success(_mapper.Map<AwardDTO>(award), new MessageResponse(){IsSuccess = true});
     }
 
     async public Task<ServiceResponse<AwardDTO>> Create(AwardDTO award)
@@ -82,12 +83,14 @@ public class AwardService: IAwardService
         var topic = await _context.Topics.FirstOrDefaultAsync(t => t.Id == award.TopicId);
         if (topic == null)
         {
-            return ServiceResponse<AwardDTO>.NotFound("notFound","Topic not found");
+            return ServiceResponse<AwardDTO>
+                .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Topic not found" });
         }
         newAward.Topic = topic;
         await _context.Awards.AddAsync(newAward);
         await _context.SaveChangesAsync();
-        return ServiceResponse<AwardDTO>.Success(_mapper.Map<AwardDTO>(newAward));
+        return ServiceResponse<AwardDTO>
+            .Success(_mapper.Map<AwardDTO>(newAward), new MessageResponse() { Key = "createdSuccessfully", IsSuccess = true, Value = "Created Successfully" });
     }
 
     async public Task<ServiceResponse<AwardDTO>> Update(Guid id, AwardDTO award)
@@ -95,13 +98,16 @@ public class AwardService: IAwardService
         var awardToUpdate = await _context.Awards.FirstOrDefaultAsync(a => a.Id == id);
         if (awardToUpdate == null)
         {
-            return ServiceResponse<AwardDTO>.NotFound("notFound","Award not found");
+            return ServiceResponse<AwardDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Award not found" });
         }
         award.Id = id;
         _mapper.Map(award, awardToUpdate);
         _context.Awards.Update(awardToUpdate);
         await _context.SaveChangesAsync();
-        return ServiceResponse<AwardDTO>.Success(_mapper.Map<AwardDTO>(awardToUpdate));
+        return ServiceResponse<AwardDTO>
+                .Success(_mapper.Map<AwardDTO>(_mapper.Map<AwardDTO>(awardToUpdate)),
+                    new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
     }
 
     async public Task<ServiceResponse<AwardDTO>> Delete(Guid id)
@@ -109,10 +115,13 @@ public class AwardService: IAwardService
         var award = await _context.Awards.FirstOrDefaultAsync(a => a.Id == id);
         if (award == null)
         {
-            return ServiceResponse<AwardDTO>.NotFound("notFound","Award not found");
+            return ServiceResponse<AwardDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Award not found" });
         }
         _context.Awards.Remove(award);
         await _context.SaveChangesAsync();
-        return ServiceResponse<AwardDTO>.Success(_mapper.Map<AwardDTO>(award));
+        return ServiceResponse<AwardDTO>
+                .Success(_mapper.Map<AwardDTO>(_mapper.Map<AwardDTO>(award)),
+                    new MessageResponse() { Key = "deletedSuccessfully", IsSuccess = true, Value = "Deleted Successfully" });
     }
 }

@@ -25,7 +25,7 @@ public class AppDbContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //Seed data
-        var astrology = new Topic { Id = new  Guid("167219a1-5934-4352-b710-2267cc06a702"), Title = "Astrology", Description = "Astrology Quizzes", Status = true };
+        var astrology = new Topic { Id = new  Guid("167219a1-5934-4352-b710-2267cc06a702"), Title = "Astronomy", Description = "Astronomy Quizzes", Status = true };
         var biology = new Topic { Id = new  Guid("ba339907-d44c-4c30-88ad-478a6b93134a"), Title = "Biology", Description = "Biology Quizzes", Status = true };
         var chemistry = new Topic { Id = new  Guid("01eaf4a0-72c2-4195-a415-d069c8eb9380"), Title = "Chemistry", Description = "Chemistry Quizzes", Status = true };
         var computerScience = new Topic { Id = new  Guid("57d53668-25dc-481d-b24c-9fa454e20d31"), Title = "Computer-Science", Description = "Computer Science Quizzes", Status = true };

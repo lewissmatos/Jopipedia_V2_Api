@@ -22,7 +22,6 @@ public class ScoreService: IScoreService
         _configuration = configuration;
     }
 
-
     async public Task<ServiceResponse<List<ScoreDTO>>> GetAll(PaginationParamsDTO pagination)
     {
         var queryableResult = _context.Scores.AsQueryable();
@@ -51,8 +50,22 @@ public class ScoreService: IScoreService
 
     async public Task<ServiceResponse<ScoreDTO>> Create(ScoreDTO score)
     {
-        var newScore = _mapper.Map<Score>(score);
         
+        var foundScore = await _context.Scores.FirstOrDefaultAsync(s => s.UserId == score.UserId && s.QuizId == score.QuizId);
+        
+        if (foundScore is not null && foundScore.Value < score.Value)
+        {
+            foundScore.Value = score.Value ?? 0;
+            foundScore.SecondsTaken = score.SecondsTaken ?? 0;
+            foundScore.UpdatedAt =  DateTime.UtcNow;
+            _context.Scores.Update(foundScore); 
+            await _context.SaveChangesAsync();
+           return ServiceResponse<ScoreDTO>
+                .Success(_mapper.Map<ScoreDTO>(foundScore), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
+
+        }
+        var newScore = _mapper.Map<Score>(score);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == score.UserId);
         var quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == score.QuizId);
         if (quiz == null)
         {
@@ -60,7 +73,7 @@ public class ScoreService: IScoreService
                     .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Score not found" });
         }
 
-        var mappedUser =  _mapper.Map<User>(score.User);
+        var mappedUser =  _mapper.Map<User>(user);
 
         newScore.User = mappedUser;
         newScore.Quiz = quiz;
@@ -79,9 +92,9 @@ public class ScoreService: IScoreService
             return ServiceResponse<ScoreDTO>
                     .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Score not found" });
         }
-        foundScore = _mapper.Map<Score>(score);
         _context.Scores.Update(foundScore);
         await _context.SaveChangesAsync();
+        foundScore = _mapper.Map<Score>(score);
         return ServiceResponse<ScoreDTO>
                 .Success(_mapper.Map<ScoreDTO>(foundScore), new MessageResponse() { Key = "updatedSuccessfully", IsSuccess = true, Value = "Updated Successfully" });
     }
@@ -98,5 +111,17 @@ public class ScoreService: IScoreService
         await _context.SaveChangesAsync();
         return ServiceResponse<ScoreDTO>
                 .Success(_mapper.Map<ScoreDTO>(score), new MessageResponse() { Key = "deleted Successfully", IsSuccess = true, Value = "Deleted Successfully" });
+    }
+
+    async public Task<ServiceResponse<ScoreDTO>> GetSpecific(GetSpecificScoreDTO getSpecificScoreDto)
+    {
+        var score = await _context.Scores.FirstOrDefaultAsync(s => s.UserId == getSpecificScoreDto.UserId && s.QuizId == getSpecificScoreDto.QuizId);
+        if (score == null)
+        {
+            return ServiceResponse<ScoreDTO>
+                    .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Score not found" });
+        }
+        return ServiceResponse<ScoreDTO>
+                .Success(_mapper.Map<ScoreDTO>(score), new MessageResponse() { IsSuccess = true });
     }
 }

@@ -8,4 +8,5 @@ public class Score: BaseModel
     public Guid QuizId { get; set; }
     public Quiz Quiz { get; set; }
     public int Value { get; set; }
+    public int SecondsTaken { get; set; }
 }

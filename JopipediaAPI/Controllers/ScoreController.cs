@@ -44,12 +44,21 @@ namespace JopipediaAPI.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ScoreDTO score)
+        public async Task<IActionResult> Create([FromBody] CreateScoreDTO score)
         {
             UserDTO user = (UserDTO)AuthManager.GetCurrentUser(HttpContext);
 
-            score.User = user;
-            var response = await _scoreService.Create(score);
+
+            ScoreDTO scoreDTO = new ScoreDTO()
+            {
+                User = user,
+                UserId = user.Id,
+                QuizId = score.QuizId,
+                Value = score.Value,
+                SecondsTaken = score.SecondsTaken
+                
+            };
+            var response = await _scoreService.Create(scoreDTO);
             return await ValidateResponse.Validate(this, response);
         }
         
@@ -64,6 +73,13 @@ namespace JopipediaAPI.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var response = await _scoreService.Delete(id);
+            return await ValidateResponse.Validate(this, response);
+        }
+        
+        [HttpGet("Specific")]
+        public async Task<IActionResult> GetSpecific([FromQuery] GetSpecificScoreDTO getSpecificScoreDto)
+        {
+            var response = await _scoreService.GetSpecific(getSpecificScoreDto);
             return await ValidateResponse.Validate(this, response);
         }
         

@@ -29,6 +29,7 @@ public class QuestionService : IQuestionService
         var queryableResponse = _context.Questions
             .Include(q => q.Quiz)
             .Include(q => q.Answers)
+            .OrderBy(q => q.Index)
             .AsQueryable();
 
 

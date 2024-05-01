@@ -11,4 +11,5 @@ public interface IScoreService
     Task<ServiceResponse<ScoreDTO>> Create(ScoreDTO scoreDTO);
     Task<ServiceResponse<ScoreDTO>> Update(Guid id, ScoreDTO scoreDTO);
     Task<ServiceResponse<ScoreDTO>> Delete(Guid id);
+    Task<ServiceResponse<ScoreDTO>> GetSpecific(GetSpecificScoreDTO getSpecificScoreDto);
 }

@@ -98,6 +98,8 @@ internal class QuizService: IQuizService
     {
         var quiz = await _context.Quizzes
             .Where(q => q.Id == id)
+            .Include(q => q.Topics)
+            .Include(q => q.CreatedBy)
             .GroupJoin(_context.Questions, // the source to join with
                 quiz => quiz.Id, // key selector for the outer type
                 question => question.QuizId, // key selector for the inner type
@@ -125,13 +127,13 @@ internal class QuizService: IQuizService
         var newQuiz = _mapper.Map<Quiz>(quiz);
         
         var topics = await _context.Topics.Where(t => quiz.TopicIds.Contains(t.Id)).ToListAsync();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == quiz.CreatedById);
         if (topics == null)
         {
             return ServiceResponse<QuizDTO>
                     .Success(null, new MessageResponse() { Key = "notFound", IsSuccess = false, Value = "Topics not found" });
         }
-        
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == quiz.CreatedById);
+
         newQuiz.CreatedBy = _mapper.Map<User>(user);
         _mapper.Map(quiz, newQuiz);
         newQuiz.Topics = topics;

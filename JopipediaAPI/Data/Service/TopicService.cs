@@ -52,7 +52,6 @@ internal class TopicService: ITopicService
         var topic = await  _context.Topics.
             Include(t => t.Quizzes)
             .FirstOrDefaultAsync(t => t.Id == id);
-        // var QuizCount = _context.Quizzes.Where(q => q.TopicIds.Contains(id)).Count();
 
         var data = _mapper.Map<TopicDTO>(topic);
         data.QuizzesCount = topic.Quizzes.Count();

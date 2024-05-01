@@ -233,29 +233,48 @@ public class UserService: IUserService
            + 10001: legend
        */
 
-        if (user.RankingValue >= 10000)
+        // if (user.RankingValue >= 10000)
+        // {
+        //     user.Rank.Name = RankName.legend;
+        // }
+        // else if (user.RankingValue >= 5001)
+        // {
+        //     user.Rank.Name = RankName.expert;
+        // }
+        // else if (user.RankingValue >= 3001)
+        // {
+        //     user.Rank.Name = RankName.advanced;
+        // }
+        // else if (user.RankingValue >= 1501)
+        // {
+        //     user.Rank.Name = RankName.intermediate;
+        // }
+        // else if (user.RankingValue >= 501)
+        // {
+        //     user.Rank.Name = RankName.beginner;
+        // }
+        // else
+        // {
+        //     user.Rank.Name = RankName.rookie;
+        // }
+
+        var rankNames = new SortedDictionary<int, String>
         {
-            user.Rank.Name = RankName.legend;
-        }
-        else if (user.RankingValue >= 5001)
+            {10000, RankName.legend},
+            {5001, RankName.expert},
+            {3001, RankName.advanced},
+            {1501, RankName.intermediate},
+            {501, RankName.beginner},
+            {0, RankName.rookie}
+        };
+
+        foreach (var rank in rankNames.Reverse())
         {
-            user.Rank.Name = RankName.expert;
-        }
-        else if (user.RankingValue >= 3001)
-        {
-            user.Rank.Name = RankName.advanced;
-        }
-        else if (user.RankingValue >= 1501)
-        {
-            user.Rank.Name = RankName.intermediate;
-        }
-        else if (user.RankingValue >= 501)
-        {
-            user.Rank.Name = RankName.beginner;
-        }
-        else
-        {
-            user.Rank.Name = RankName.rookie;
+            if (user.RankingValue >= rank.Key)
+            { 
+                user.Rank.Name = rank.Value;
+                break;
+            }
         }
         
         await _context.SaveChangesAsync();

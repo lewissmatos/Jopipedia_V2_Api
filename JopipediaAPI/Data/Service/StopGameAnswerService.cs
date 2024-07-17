@@ -151,16 +151,11 @@ public class StopGameAnswerService: IStopGameAnswerService
     
     async public Task<bool> CheckAnswer(StopGameCheckResultDTO stopGameResult)
     {
-        if (stopGameResult.Category.IsNullOrEmpty() || stopGameResult.Word.IsNullOrEmpty())
+        if (stopGameResult.Category.IsNullOrEmpty() || stopGameResult.Word.IsNullOrEmpty() || !stopGameResult.Word.ToLower().StartsWith(stopGameResult.Letter.ToLower()))
         {
             return false;
         }
 
-        if (!stopGameResult.Word.ToLower().StartsWith(stopGameResult.Letter.ToLower()))
-        {
-            return false;
-        }
-        
         using (var _httpClient = new HttpClient())
         {
             
@@ -188,11 +183,10 @@ public class StopGameAnswerService: IStopGameAnswerService
 
             var openAiRes =  JsonConvert.DeserializeObject<Root>(responseContent);
 
-            var answer = openAiRes.Choices?[0]?.Message?.Content
+            var isAnswerValid = openAiRes.Choices?[0]?.Message?.Content
                 .ToLower().Contains("yes") ?? false;
 
-            return answer;
-
+            return isAnswerValid;
         }
     }
 

@@ -12,4 +12,6 @@ public interface IScoreService
     Task<ServiceResponse<ScoreDTO>> Update(Guid id, ScoreDTO scoreDTO);
     Task<ServiceResponse<ScoreDTO>> Delete(Guid id);
     Task<ServiceResponse<ScoreDTO>> GetSpecific(GetSpecificScoreDTO getSpecificScoreDto);
+    Task<ServiceResponse<List<TopScorersResponseDTO>>> Top10Scorers(Guid quizId);
+
 }

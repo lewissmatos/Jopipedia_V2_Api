@@ -124,4 +124,20 @@ public class ScoreService: IScoreService
         return ServiceResponse<ScoreDTO>
                 .Success(_mapper.Map<ScoreDTO>(score), new MessageResponse() { IsSuccess = true });
     }
+
+    async public Task<ServiceResponse<List<TopScorersResponseDTO>>> Top10Scorers(Guid quizId)
+    {
+        var scorers = _context.Scores
+            .Include(s => s.User)
+            .Include(s => s.Quiz)
+            .Where(s => s.Quiz.Id == quizId)
+            .OrderByDescending(s => s.Value)
+            .Take(10)
+            .ToList();
+        
+        var data = _mapper.Map<List<TopScorersResponseDTO>>(scorers);
+        
+        return ServiceResponse<List<TopScorersResponseDTO>>
+            .Success(data, new MessageResponse() { IsSuccess = true });
+    }
 }

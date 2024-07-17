@@ -1,6 +1,7 @@
 using AutoMapper;
 using JopipediaAPI.Data.Context;
 using JopipediaAPI.Data.DTO.Rank;
+using JopipediaAPI.Data.DTO.User;
 using JopipediaAPI.Data.Framework.Helpers;
 using JopipediaAPI.Data.Model;
 using JopipediaAPI.Data.Service.Interface;
@@ -86,5 +87,14 @@ public class RankService: IRankService
         await _context.SaveChangesAsync();
         return ServiceResponse<RankDTO>
                 .Success(_mapper.Map<RankDTO>(userRankToDelete), new MessageResponse() { Key = "deletedSuccessfully", IsSuccess = true, Value = "Deleted Successfully" });
+    }
+
+    async public Task<ServiceResponse<List<UserDTO>>> Top20Users()
+    {
+       var topUsers = await _context.Users
+            .OrderByDescending(u => u.RankingValue)
+            .ToListAsync();
+        return ServiceResponse<List<UserDTO>>
+            .Success(_mapper.Map<List<UserDTO>>(topUsers), new MessageResponse() { Key = "topUsers", IsSuccess = true, Value = "Top Users" });
     }
 }

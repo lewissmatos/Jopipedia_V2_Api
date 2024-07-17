@@ -82,17 +82,13 @@ namespace JopipediaAPI.Controllers
             var response = await _scoreService.GetSpecific(getSpecificScoreDto);
             return await ValidateResponse.Validate(this, response);
         }
-        
-        // Helper method to validate the response
-        private async Task<IActionResult> ValidateResult(dynamic response)
+
+        [HttpGet("TopScorers")]
+        public async Task<IActionResult> Top10Scorers([FromQuery] Guid quizId)
         {
-            if(response.IsNotFound)
-                return NotFound(new {response.Data, response.Message});
-
-            if(response.IsBadRequest)
-                return BadRequest(new {response.Data, response.Message});
-
-            return Ok(new { response.Data, response.Message, response.Meta });
+            var response = await _scoreService.Top10Scorers(quizId);
+            return await ValidateResponse.Validate(this, response);
         }
+
     }
 }

@@ -70,16 +70,12 @@ namespace JopipediaAPI.Controllers
             return await ValidateResponse.Validate(this, response);
         }
         
-        //Validate the result of the service
-        private async Task<IActionResult> ValidateResult(dynamic response)
+        [HttpGet("topUsers")]
+        public async Task<IActionResult> Top20Users()
         {
-            if(response.IsNotFound)
-                return NotFound(new {response.Data, response.Message});
-
-            if(response.IsBadRequest)
-                return BadRequest(new {response.Data, response.Message});
-
-            return Ok(new { response.Data, response.Message });
+            var response = await _rankService.Top20Users();
+          
+            return await ValidateResponse.Validate(this, response);
         }
         
     }
